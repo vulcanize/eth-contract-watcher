@@ -2,9 +2,9 @@ FROM golang:alpine as builder
 RUN apk --update --no-cache add make git g++
 
 # Build statically linked vDB binary (wonky path because of Dep)
-RUN mkdir -p /go/src/github.com/vulcanize/vulcanizedb
-ADD . /go/src/github.com/vulcanize/vulcanizedb
-WORKDIR /go/src/github.com/vulcanize/vulcanizedb
+RUN mkdir -p /go/src/github.com/vulcanize/eth-contract-watcher
+ADD . /go/src/github.com/vulcanize/eth-contract-watcher
+WORKDIR /go/src/github.com/vulcanize/eth-contract-watcher
 RUN GCO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' .
 
 # Build migration tool
@@ -14,10 +14,10 @@ RUN GCO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflag
 
 # Second stage
 FROM alpine
-COPY --from=builder /go/src/github.com/vulcanize/vulcanizedb/vulcanizedb /app/vulcanizedb
-COPY --from=builder /go/src/github.com/vulcanize/vulcanizedb/environments/staging.toml /app/environments/
-COPY --from=builder /go/src/github.com/vulcanize/vulcanizedb/dockerfiles/startup_script.sh /app/
-COPY --from=builder /go/src/github.com/vulcanize/vulcanizedb/db/migrations/* /app/
+COPY --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/eth-contract-watcher /app/eth-contract-watcher
+COPY --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/environments/staging.toml /app/environments/
+COPY --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/dockerfiles/startup_script.sh /app/
+COPY --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/db/migrations/* /app/
 COPY --from=builder /go/src/github.com/pressly/goose/cmd/goose/goose /app/goose
 
 WORKDIR /app

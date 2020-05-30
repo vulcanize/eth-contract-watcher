@@ -21,7 +21,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/vulcanize/vulcanizedb/pkg/eth"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth"
 )
 
 // Config struct for generic contract transformer

@@ -147,11 +147,11 @@ RINKEBY_COMPOSE_FILE=dockerfiles/rinkeby/docker-compose.yml
 rinkeby_env_up:
 	docker-compose -f $(RINKEBY_COMPOSE_FILE) up -d geth
 	docker-compose -f $(RINKEBY_COMPOSE_FILE) up --build migrations
-	docker-compose -f $(RINKEBY_COMPOSE_FILE) up -d --build vulcanizedb
+	docker-compose -f $(RINKEBY_COMPOSE_FILE) up -d --build eth-contract-watcher
 
 .PHONY: rinkeby_env_deploy
 rinkeby_env_deploy:
-	docker-compose -f $(RINKEBY_COMPOSE_FILE) up -d --build vulcanizedb
+	docker-compose -f $(RINKEBY_COMPOSE_FILE) up -d --build eth-contract-watcher
 
 .PHONY: dev_env_migrate
 rinkeby_env_migrate:

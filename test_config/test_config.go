@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/vulcanize/vulcanizedb/pkg/config"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/postgres"
+	"github.com/vulcanize/eth-contract-watcher/pkg/config"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
+	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
 	"os"
 )
 
@@ -40,7 +40,7 @@ func init() {
 func setTestConfig() {
 	TestConfig = viper.New()
 	TestConfig.SetConfigName("testing")
-	TestConfig.AddConfigPath("$GOPATH/src/github.com/vulcanize/vulcanizedb/environments/")
+	TestConfig.AddConfigPath("$GOPATH/src/github.com/vulcanize/eth-contract-watcher/environments/")
 	err := TestConfig.ReadInConfig()
 	if err != nil {
 		logrus.Fatal(err)
@@ -72,7 +72,7 @@ func setTestConfig() {
 
 func setABIPath() {
 	gp := os.Getenv("GOPATH")
-	ABIFilePath = gp + "/src/github.com/vulcanize/vulcanizedb/pkg/eth/testing/"
+	ABIFilePath = gp + "/src/github.com/vulcanize/eth-contract-watcher/pkg/eth/testing/"
 }
 
 func NewTestDB(node core.Node) *postgres.DB {

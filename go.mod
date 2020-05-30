@@ -1,4 +1,4 @@
-module github.com/vulcanize/vulcanizedb
+module github.com/vulcanize/eth-contract-watcher
 
 go 1.12
 

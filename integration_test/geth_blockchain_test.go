@@ -23,12 +23,12 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/client"
-	rpc2 "github.com/vulcanize/vulcanizedb/pkg/eth/converters/rpc"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/node"
-	"github.com/vulcanize/vulcanizedb/test_config"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/client"
+	rpc2 "github.com/vulcanize/eth-contract-watcher/pkg/eth/converters/rpc"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/node"
+	"github.com/vulcanize/eth-contract-watcher/test_config"
 )
 
 var _ = Describe("Reading from the Geth blockchain", func() {

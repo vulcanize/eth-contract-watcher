@@ -99,11 +99,11 @@ remove the `balanceOf` method from the `0x8dd5fbce2f6a956c3022ba3663759011dd51e7
 
 If you are operating a header sync vDB, run:
 
- `./vulcanizedb contractWatcher --config=./environments/example.toml --mode=header`
+ `./eth-contract-watcher contractWatcher --config=./environments/example.toml --mode=header`
 
 If instead you are operating a full sync vDB and provided an archival node IPC path, run in full mode:
 
- `./vulcanizedb contractWatcher --config=./environments/example.toml --mode=full`
+ `./eth-contract-watcher contractWatcher --config=./environments/example.toml --mode=full`
 
 This will run the contractWatcher and configures it to watch the contracts specified in the config file. Note that
 by default we operate in `header` mode but the flag is included here to demonstrate its use.

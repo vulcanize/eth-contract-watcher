@@ -21,8 +21,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" //postgres driver
-	"github.com/vulcanize/vulcanizedb/pkg/config"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
+	"github.com/vulcanize/eth-contract-watcher/pkg/config"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
 )
 
 type DB struct {

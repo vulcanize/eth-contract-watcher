@@ -23,17 +23,16 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth/contract_watcher/shared/constants"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/contract_watcher/shared/contract"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/contract_watcher/shared/helpers/test_helpers"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/contract_watcher/shared/poller"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/contract_watcher/shared/types"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/postgres"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/constants"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/contract"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/poller"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
+	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
 )
 
 var _ = Describe("Poller", func() {
-
 	var contractPoller poller.Poller
 	var con *contract.Contract
 	var db *postgres.DB

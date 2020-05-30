@@ -29,26 +29,20 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/vulcanize/vulcanizedb/pkg/config"
-	"github.com/vulcanize/vulcanizedb/pkg/eth"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/client"
-	vRpc "github.com/vulcanize/vulcanizedb/pkg/eth/converters/rpc"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/node"
+	"github.com/vulcanize/eth-contract-watcher/pkg/config"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/client"
+	vRpc "github.com/vulcanize/eth-contract-watcher/pkg/eth/converters/rpc"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
+	"github.com/vulcanize/eth-contract-watcher/pkg/eth/node"
 )
 
 var (
 	cfgFile              string
 	databaseConfig       config.Database
-	genConfig            config.Plugin
 	ipc                  string
-	queueRecheckInterval time.Duration
-	startingBlockNumber  int64
-	storageDiffsPath     string
-	recheckHeadersArg    bool
 	subCommand           string
 	logWithCommand       log.Entry
-	storageDiffsSource   string
 )
 
 const (
@@ -57,7 +51,7 @@ const (
 )
 
 var rootCmd = &cobra.Command{
-	Use:              "vulcanizedb",
+	Use:              "eth-contract-watcher",
 	PersistentPreRun: initFuncs,
 }
 
@@ -91,8 +85,6 @@ func initFuncs(cmd *cobra.Command, args []string) {
 
 func setViperConfigs() {
 	ipc = viper.GetString("client.ipcpath")
-	storageDiffsPath = viper.GetString("filesystem.storageDiffsPath")
-	storageDiffsSource = viper.GetString("storageDiffs.source")
 	databaseConfig = config.Database{
 		Name:     viper.GetString("database.name"),
 		Hostname: viper.GetString("database.hostname"),

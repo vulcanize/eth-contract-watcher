@@ -7,7 +7,7 @@ services:
 addons:
   ssh_known_hosts: arch1.vdb.to
   postgresql: '11.2'
-go_import_path: github.com/vulcanize/vulcanizedb
+go_import_path: github.com/vulcanize/eth-contract-watcher
 before_install:
 - openssl aes-256-cbc -K $encrypted_e1db309e8776_key -iv $encrypted_e1db309e8776_iv
   -in temp_rsa.enc -out temp_rsa -d

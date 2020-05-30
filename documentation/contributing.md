@@ -38,7 +38,7 @@ We use [github-changelog-generator](https://github.com/github-changelog-generato
 
 ```
 --user vulcanize
---project vulcanizedb
+--project eth-contract-watcher
 --token {YOUR_GITHUB_TOKEN}
 --no-issues
 --usernames-as-github-logins
