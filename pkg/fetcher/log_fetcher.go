@@ -21,7 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/core"
 )
 
 // LogFetcher is the fetching interface for eth logs
@@ -29,19 +29,8 @@ type LogFetcher interface {
 	FetchLogs(contractAddresses []string, topics []common.Hash, missingHeader core.Header) ([]types.Log, error)
 }
 
-type logFetcher struct {
-	blockChain core.BlockChain
-}
-
-// NewFetcher returns a new Fetcher
-func NewFetcher(blockchain core.BlockChain) *logFetcher {
-	return &logFetcher{
-		blockChain: blockchain,
-	}
-}
-
 // FetchLogs checks all topic0s, on all addresses, fetching matching logs for the given header
-func (fetcher *logFetcher) FetchLogs(contractAddresses []string, topic0s []common.Hash, header core.Header) ([]types.Log, error) {
+func (f *Fetcher) FetchLogs(contractAddresses []string, topic0s []common.Hash, header core.Header) ([]types.Log, error) {
 	addresses := hexStringsToAddresses(contractAddresses)
 	blockHash := common.HexToHash(header.Hash)
 	query := ethereum.FilterQuery{
@@ -51,7 +40,7 @@ func (fetcher *logFetcher) FetchLogs(contractAddresses []string, topic0s []commo
 		Topics: [][]common.Hash{topic0s},
 	}
 
-	logs, err := fetcher.blockChain.GetEthLogsWithCustomQuery(query)
+	logs, err := f.FetchEthLogsWithCustomQuery(query)
 	if err != nil {
 		// TODO review aggregate fetching error handling
 		return []types.Log{}, err

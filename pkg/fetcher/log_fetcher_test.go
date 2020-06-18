@@ -17,21 +17,24 @@
 package fetcher_test
 
 import (
+	"context"
+
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/fetcher"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/fakes"
+	"github.com/vulcanize/eth-header-sync/pkg/core"
+	"github.com/vulcanize/eth-header-sync/pkg/fakes"
+
+	f "github.com/vulcanize/eth-contract-watcher/pkg/fetcher"
 )
 
 var _ = Describe("Fetcher", func() {
 	Describe("FetchLogs", func() {
 		It("fetches logs based on the given query", func() {
-			blockChain := fakes.NewMockBlockChain()
-			fetcher := fetcher.NewFetcher(blockChain)
+			mockClient := fakes.NewMockEthClient()
+			fetcher := f.NewFetcher(mockClient)
 			header := fakes.FakeHeader
 
 			addresses := []string{"0xfakeAddress", "0xanotherFakeAddress"}
@@ -49,13 +52,13 @@ var _ = Describe("Fetcher", func() {
 				Addresses: []common.Address{address1, address2},
 				Topics:    topicZeros,
 			}
-			blockChain.AssertGetEthLogsWithCustomQueryCalledWith(expectedQuery)
+			mockClient.AssertFilterLogsCalledWith(context.Background(), expectedQuery)
 		})
 
 		It("returns an error if fetching the logs fails", func() {
-			blockChain := fakes.NewMockBlockChain()
-			blockChain.SetGetEthLogsWithCustomQueryErr(fakes.FakeError)
-			fetcher := fetcher.NewFetcher(blockChain)
+			mockClient := fakes.NewMockEthClient()
+			mockClient.SetFilterLogsErr(fakes.FakeError)
+			fetcher := f.NewFetcher(mockClient)
 
 			_, err := fetcher.FetchLogs([]string{}, []common.Hash{}, core.Header{})
 

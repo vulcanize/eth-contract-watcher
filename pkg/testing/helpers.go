@@ -14,24 +14,30 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package helpers
+package testing
 
 import (
-	"math/big"
+	"os"
 
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/sirupsen/logrus"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/abi"
+	"github.com/vulcanize/eth-contract-watcher/pkg/core"
 )
 
-// BigFromString creates a big.Int from a string
-func BigFromString(n string) *big.Int {
-	b := new(big.Int)
-	b.SetString(n, 10)
-	return b
+var TestABIsPath = os.Getenv("GOPATH") + "/src/github.com/vulcanize/vulcanizedb/pkg/eth/testing/"
+
+func SampleContract() core.Contract {
+	return core.Contract{
+		Abi:  sampleAbiFileContents(),
+		Hash: "0xd26114cd6EE289AccF82350c8d8487fedB8A0C07",
+	}
 }
 
-// GenerateSignature returns the keccak256 hash hex of a string
-func GenerateSignature(s string) string {
-	eventSignature := []byte(s)
-	hash := crypto.Keccak256Hash(eventSignature)
-	return hash.Hex()
+func sampleAbiFileContents() string {
+	abiFileContents, err := abi.ReadAbiFile(TestABIsPath + "sample_abi.json")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	return abiFileContents
 }

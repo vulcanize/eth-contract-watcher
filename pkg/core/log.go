@@ -14,24 +14,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package helpers
+package core
 
-import (
-	"math/big"
-
-	"github.com/ethereum/go-ethereum/crypto"
-)
-
-// BigFromString creates a big.Int from a string
-func BigFromString(n string) *big.Int {
-	b := new(big.Int)
-	b.SetString(n, 10)
-	return b
-}
-
-// GenerateSignature returns the keccak256 hash hex of a string
-func GenerateSignature(s string) string {
-	eventSignature := []byte(s)
-	hash := crypto.Keccak256Hash(eventSignature)
-	return hash.Hex()
+type Log struct {
+	BlockNumber int64
+	TxHash      string
+	Address     string
+	Topics
+	Index int64
+	Data  string
 }

@@ -27,25 +27,25 @@ import (
 	gethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/sirupsen/logrus"
 
+	"github.com/vulcanize/eth-header-sync/pkg/core"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+
 	"github.com/vulcanize/eth-contract-watcher/pkg/config"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/converter"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/fetcher"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/repository"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/retriever"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/contract"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/parser"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/poller"
-	srep "github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/repository"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-contract-watcher/pkg/contract"
+	"github.com/vulcanize/eth-contract-watcher/pkg/converter"
+	"github.com/vulcanize/eth-contract-watcher/pkg/fetcher"
+	"github.com/vulcanize/eth-contract-watcher/pkg/parser"
+	"github.com/vulcanize/eth-contract-watcher/pkg/poller"
+	"github.com/vulcanize/eth-contract-watcher/pkg/repository"
+	"github.com/vulcanize/eth-contract-watcher/pkg/retriever"
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
 )
 
 // Transformer is the top level struct for transforming watched contract data
 // Requires a header synced vDB (headers) and a running eth node (or infura)
 type Transformer struct {
 	// Database interfaces
-	EventRepository  srep.EventRepository        // Holds transformed watched event log data
+	EventRepository  repository.EventRepository  // Holds transformed watched event log data
 	HeaderRepository repository.HeaderRepository // Interface for interaction with header repositories
 
 	// Pre-processing interfaces
@@ -53,9 +53,9 @@ type Transformer struct {
 	Retriever retriever.BlockRetriever // Retrieves first block for contract
 
 	// Processing interfaces
-	Fetcher   fetcher.Fetcher              // Fetches event logs, using header hashes
-	Converter converter.ConverterInterface // Converts watched event logs into custom log
-	Poller    poller.Poller                // Polls methods using arguments collected from events and persists them using a method datastore
+	Fetcher   fetcher.LogFetcher     // Fetches event logs, using header hashes
+	Converter converter.LogConverter // Converts watched event logs into custom log
+	Poller    poller.Poller          // Polls methods using arguments collected from events and persists them using a method datastore
 
 	// Store contract configuration information
 	Config config.ContractConfig
@@ -78,18 +78,17 @@ type Transformer struct {
 // 3. Init
 // 4. Execute
 
-// NewTransformer takes in a contract config, blockchain, and database, and returns a new Transformer
-func NewTransformer(con config.ContractConfig, bc core.BlockChain, db *postgres.DB) *Transformer {
-
+// NewTransformer takes in a contract config, fetcher, and database, and returns a new Transformer
+func NewTransformer(con config.ContractConfig, client core.EthClient, db *postgres.DB) *Transformer {
 	return &Transformer{
-		Poller:           poller.NewPoller(bc, db, types.HeaderSync),
-		Fetcher:          fetcher.NewFetcher(bc),
+		Poller:           poller.NewPoller(client, db, types.HeaderSync),
+		Fetcher:          fetcher.NewFetcher(client),
 		Parser:           parser.NewParser(con.Network),
 		HeaderRepository: repository.NewHeaderRepository(db),
 		Retriever:        retriever.NewBlockRetriever(db),
 		Converter:        &converter.Converter{},
 		Contracts:        map[string]*contract.Contract{},
-		EventRepository:  srep.NewEventRepository(db, types.HeaderSync),
+		EventRepository:  repository.NewEventRepository(db, types.HeaderSync),
 		Config:           con,
 	}
 }

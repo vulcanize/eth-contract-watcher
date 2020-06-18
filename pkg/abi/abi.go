@@ -17,16 +17,15 @@
 package abi
 
 import (
-	"errors"
-	"strings"
-
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/vulcanize/eth-contract-watcher/pkg/fs"
 )
 
 var (
@@ -96,8 +95,7 @@ func ParseAbi(abiString string) (abi.ABI, error) {
 }
 
 func ReadAbiFile(abiFilePath string) (string, error) {
-	reader := fs.FsReader{}
-	filesBytes, err := reader.Read(abiFilePath)
+	filesBytes, err := ioutil.ReadFile(abiFilePath)
 	if err != nil {
 		return "", ErrMissingAbiFile
 	}

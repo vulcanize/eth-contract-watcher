@@ -18,9 +18,8 @@ package constants
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/filters"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers"
 )
 
 // Event enums
@@ -92,23 +91,4 @@ var ABIs = map[common.Address]string{
 	common.HexToAddress("0x314159265dD8dbb310642f98f50C066173C1259b"): ENSAbiString,
 	common.HexToAddress("0x8dd5fbCe2F6a956C3022bA3663759011Dd51e73E"): TusdAbiString,
 	common.HexToAddress("0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"): DaiAbiString,
-}
-
-// Filters
-// To add additional filter parameters, filter by other Topics e.g. for a Transfer event filter Topics[1] to filter for a specific 'from' address
-var TusdGenericFilters = []filters.LogFilter{
-	{
-		Name:      BurnEvent.String(),
-		FromBlock: 5197514,
-		ToBlock:   -1,
-		Address:   TusdContractAddress,
-		Topics:    core.Topics{BurnEvent.Signature()},
-	},
-	{
-		Name:      MintEvent.String(),
-		FromBlock: 5197514,
-		ToBlock:   -1,
-		Address:   TusdContractAddress,
-		Topics:    core.Topics{MintEvent.Signature()},
-	},
 }

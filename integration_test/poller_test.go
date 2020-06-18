@@ -23,20 +23,21 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/constants"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/contract"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/poller"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/core"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/constants"
+	"github.com/vulcanize/eth-contract-watcher/pkg/contract"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers"
+	"github.com/vulcanize/eth-contract-watcher/pkg/poller"
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 )
 
 var _ = Describe("Poller", func() {
 	var contractPoller poller.Poller
 	var con *contract.Contract
 	var db *postgres.DB
-	var bc core.BlockChain
+	var client core.EthClient
 
 	AfterEach(func() {
 		test_helpers.TearDown(db)
@@ -44,8 +45,8 @@ var _ = Describe("Poller", func() {
 
 	Describe("Full sync mode", func() {
 		BeforeEach(func() {
-			db, bc = test_helpers.SetupDBandBC()
-			contractPoller = poller.NewPoller(bc, db, types.FullSync)
+			db, client = test_helpers.SetupDBandClient()
+			contractPoller = poller.NewPoller(client, db, types.FullSync)
 		})
 
 		Describe("PollContract", func() {
@@ -131,8 +132,8 @@ var _ = Describe("Poller", func() {
 
 	Describe("Header sync mode", func() {
 		BeforeEach(func() {
-			db, bc = test_helpers.SetupDBandBC()
-			contractPoller = poller.NewPoller(bc, db, types.HeaderSync)
+			db, client = test_helpers.SetupDBandClient()
+			contractPoller = poller.NewPoller(client, db, types.HeaderSync)
 		})
 
 		Describe("PollContract", func() {
@@ -223,8 +224,8 @@ var _ = Describe("Poller", func() {
 				Expect(len(con.EmittedAddrs)).To(Equal(0)) // With piping off the address is not saved
 
 				test_helpers.TearDown(db)
-				db, bc = test_helpers.SetupDBandBC()
-				contractPoller = poller.NewPoller(bc, db, types.HeaderSync)
+				db, client = test_helpers.SetupDBandClient()
+				contractPoller = poller.NewPoller(client, db, types.HeaderSync)
 
 				con.Piping = true
 				err = contractPoller.PollContract(*con, 6921968)

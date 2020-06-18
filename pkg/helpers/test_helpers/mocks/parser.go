@@ -18,9 +18,9 @@ package mocks
 
 import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/parser"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
+	a "github.com/vulcanize/eth-contract-watcher/pkg/abi"
+	"github.com/vulcanize/eth-contract-watcher/pkg/parser"
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
 )
 
 // Mock parser
@@ -53,7 +53,7 @@ func (p *mockParser) ParseAbiStr(abiStr string) error {
 // for the given contract address
 func (p *mockParser) Parse(contractAddr string) error {
 	var err error
-	p.parsedAbi, err = eth.ParseAbi(p.abi)
+	p.parsedAbi, err = a.ParseAbi(p.abi)
 
 	return err
 }

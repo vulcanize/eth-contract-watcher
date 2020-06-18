@@ -22,8 +22,8 @@ import (
 	"github.com/hashicorp/golang-lru"
 	"github.com/sirupsen/logrus"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/core"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 )
 
 const columnCacheSize = 1000

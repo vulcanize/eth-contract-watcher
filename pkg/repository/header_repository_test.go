@@ -22,18 +22,19 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/repository"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers/mocks"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/datastore/postgres/repositories"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/core"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+	hr "github.com/vulcanize/eth-header-sync/pkg/repository"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers/mocks"
+	"github.com/vulcanize/eth-contract-watcher/pkg/repository"
 )
 
 var _ = Describe("Repository", func() {
 	var db *postgres.DB
 	var contractHeaderRepo repository.HeaderRepository // contract_watcher headerSync header repository
-	var coreHeaderRepo repositories.HeaderRepository   // pkg/datastore header repository
+	var coreHeaderRepo hr.HeaderRepository             // pkg/datastore header repository
 	var eventIDs = []string{
 		"eventName_contractAddr",
 		"eventName_contractAddr2",
@@ -46,9 +47,9 @@ var _ = Describe("Repository", func() {
 	}
 
 	BeforeEach(func() {
-		db, _ = test_helpers.SetupDBandBC()
+		db, _ = test_helpers.SetupDBandClient()
 		contractHeaderRepo = repository.NewHeaderRepository(db)
-		coreHeaderRepo = repositories.NewHeaderRepository(db)
+		coreHeaderRepo = hr.NewHeaderRepository(db)
 	})
 
 	AfterEach(func() {
@@ -345,7 +346,7 @@ var _ = Describe("Repository", func() {
 	})
 })
 
-func addHeaders(coreHeaderRepo repositories.HeaderRepository) {
+func addHeaders(coreHeaderRepo hr.HeaderRepository) {
 	_, err := coreHeaderRepo.CreateOrUpdateHeader(mocks.MockHeader1)
 	Expect(err).NotTo(HaveOccurred())
 	_, err = coreHeaderRepo.CreateOrUpdateHeader(mocks.MockHeader2)
@@ -354,7 +355,7 @@ func addHeaders(coreHeaderRepo repositories.HeaderRepository) {
 	Expect(err).NotTo(HaveOccurred())
 }
 
-func addDiscontinuousHeaders(coreHeaderRepo repositories.HeaderRepository) {
+func addDiscontinuousHeaders(coreHeaderRepo hr.HeaderRepository) {
 	_, err := coreHeaderRepo.CreateOrUpdateHeader(mocks.MockHeader1)
 	Expect(err).NotTo(HaveOccurred())
 	_, err = coreHeaderRepo.CreateOrUpdateHeader(mocks.MockHeader2)
@@ -363,7 +364,7 @@ func addDiscontinuousHeaders(coreHeaderRepo repositories.HeaderRepository) {
 	Expect(err).NotTo(HaveOccurred())
 }
 
-func addLaterHeaders(coreHeaderRepo repositories.HeaderRepository) {
+func addLaterHeaders(coreHeaderRepo hr.HeaderRepository) {
 	_, err := coreHeaderRepo.CreateOrUpdateHeader(mocks.MockHeader3)
 	Expect(err).NotTo(HaveOccurred())
 	_, err = coreHeaderRepo.CreateOrUpdateHeader(mocks.MockHeader4)

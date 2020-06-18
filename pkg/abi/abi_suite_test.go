@@ -14,24 +14,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package helpers
+package abi_test
 
 import (
-	"math/big"
+	"io/ioutil"
+	"testing"
 
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/sirupsen/logrus"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-// BigFromString creates a big.Int from a string
-func BigFromString(n string) *big.Int {
-	b := new(big.Int)
-	b.SetString(n, 10)
-	return b
+func TestABI(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "ABI Test Suite")
 }
 
-// GenerateSignature returns the keccak256 hash hex of a string
-func GenerateSignature(s string) string {
-	eventSignature := []byte(s)
-	hash := crypto.Keccak256Hash(eventSignature)
-	return hash.Hex()
-}
+var _ = BeforeSuite(func() {
+	logrus.SetOutput(ioutil.Discard)
+})

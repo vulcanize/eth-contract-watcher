@@ -23,9 +23,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/contract"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/contract"
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
 )
 
 // AddressRetriever is used to retrieve the addresses associated with a contract

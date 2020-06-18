@@ -21,11 +21,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/constants"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers/mocks"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/parser"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
+	a "github.com/vulcanize/eth-contract-watcher/pkg/abi"
+	"github.com/vulcanize/eth-contract-watcher/pkg/constants"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers/mocks"
+	"github.com/vulcanize/eth-contract-watcher/pkg/parser"
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
 )
 
 var _ = Describe("Parser", func() {
@@ -44,7 +44,7 @@ var _ = Describe("Parser", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			parsedAbi := mp.ParsedAbi()
-			expectedAbi, err := eth.ParseAbi(constants.DaiAbiString)
+			expectedAbi, err := a.ParseAbi(constants.DaiAbiString)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(parsedAbi).To(Equal(expectedAbi))
 
@@ -73,7 +73,7 @@ var _ = Describe("Parser", func() {
 			expectedAbi := constants.DaiAbiString
 			Expect(p.Abi()).To(Equal(expectedAbi))
 
-			expectedParsedAbi, err := eth.ParseAbi(expectedAbi)
+			expectedParsedAbi, err := a.ParseAbi(expectedAbi)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(p.ParsedAbi()).To(Equal(expectedParsedAbi))
 		})

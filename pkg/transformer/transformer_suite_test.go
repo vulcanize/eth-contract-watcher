@@ -27,7 +27,7 @@ import (
 
 func TestTransformer(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Header Sync Transformer Suite Test")
+	RunSpecs(t, "Transformer Suite Test")
 }
 
 var _ = BeforeSuite(func() {

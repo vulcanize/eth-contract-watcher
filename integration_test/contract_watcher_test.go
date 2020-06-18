@@ -24,28 +24,31 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/vulcanize/eth-header-sync/pkg/core"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/repository"
+
 	"github.com/vulcanize/eth-contract-watcher/pkg/config"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/transformer"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/constants"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers/mocks"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/datastore/postgres/repositories"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-contract-watcher/pkg/constants"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers/mocks"
+	"github.com/vulcanize/eth-contract-watcher/pkg/transformer"
 )
 
 var _ = Describe("contractWatcher headerSync transformer", func() {
 	var db *postgres.DB
 	var err error
-	var blockChain core.BlockChain
-	var headerRepository repositories.HeaderRepository
+	var client core.EthClient
+	var headerFetcher core.Fetcher
+	var headerRepository repository.HeaderRepository
 	var headerID int64
 	var ensAddr = strings.ToLower(constants.EnsContractAddress)   // 0x314159265dd8dbb310642f98f50c066173c1259b
 	var tusdAddr = strings.ToLower(constants.TusdContractAddress) // 0x8dd5fbce2f6a956c3022ba3663759011dd51e73e
 
 	BeforeEach(func() {
-		db, blockChain = test_helpers.SetupDBandBC()
-		headerRepository = repositories.NewHeaderRepository(db)
+		db, client = test_helpers.SetupDBandClient()
+		headerFetcher = test_helpers.SetupHeaderFetcher()
+		headerRepository = repository.NewHeaderRepository(db)
 	})
 
 	AfterEach(func() {
@@ -58,7 +61,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 			Expect(insertErr).NotTo(HaveOccurred())
 			_, insertErrTwo := headerRepository.CreateOrUpdateHeader(mocks.MockHeader3)
 			Expect(insertErrTwo).NotTo(HaveOccurred())
-			t := transformer.NewTransformer(test_helpers.TusdConfig, blockChain, db)
+			t := transformer.NewTransformer(test_helpers.TusdConfig, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 
@@ -79,7 +82,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 		})
 
 		It("initializes when no headers available in db", func() {
-			t := transformer.NewTransformer(test_helpers.TusdConfig, blockChain, db)
+			t := transformer.NewTransformer(test_helpers.TusdConfig, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 		})
@@ -92,7 +95,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 			var testConf config.ContractConfig
 			testConf = test_helpers.TusdConfig
 			testConf.Addresses = nil
-			t := transformer.NewTransformer(testConf, blockChain, db)
+			t := transformer.NewTransformer(testConf, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 
@@ -103,11 +106,11 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 
 	Describe("Execute- against TrueUSD contract", func() {
 		BeforeEach(func() {
-			header1, err := blockChain.GetHeaderByNumber(6791668)
+			header1, err := headerFetcher.GetHeaderByNumber(6791668)
 			Expect(err).ToNot(HaveOccurred())
-			header2, err := blockChain.GetHeaderByNumber(6791669)
+			header2, err := headerFetcher.GetHeaderByNumber(6791669)
 			Expect(err).ToNot(HaveOccurred())
-			header3, err := blockChain.GetHeaderByNumber(6791670)
+			header3, err := headerFetcher.GetHeaderByNumber(6791670)
 			Expect(err).ToNot(HaveOccurred())
 			headerRepository.CreateOrUpdateHeader(header1)
 			headerID, err = headerRepository.CreateOrUpdateHeader(header2)
@@ -116,7 +119,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 		})
 
 		It("Transforms watched contract data into custom repositories", func() {
-			t := transformer.NewTransformer(test_helpers.TusdConfig, blockChain, db)
+			t := transformer.NewTransformer(test_helpers.TusdConfig, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			err = t.Execute()
@@ -138,7 +141,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 			testConf.Methods = map[string][]string{
 				tusdAddr: {"balanceOf"},
 			}
-			t := transformer.NewTransformer(testConf, blockChain, db)
+			t := transformer.NewTransformer(testConf, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			c, ok := t.Contracts[tusdAddr]
@@ -183,7 +186,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 			testConf.Methods = map[string][]string{
 				tusdAddr: {"balanceOf"},
 			}
-			t := transformer.NewTransformer(testConf, blockChain, db)
+			t := transformer.NewTransformer(testConf, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			err = t.Execute()
@@ -201,7 +204,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 		})
 
 		It("Fails if initialization has not been done", func() {
-			t := transformer.NewTransformer(test_helpers.TusdConfig, blockChain, db)
+			t := transformer.NewTransformer(test_helpers.TusdConfig, client, db)
 			err = t.Execute()
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("transformer has no initialized contracts"))
@@ -210,11 +213,11 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 
 	Describe("Execute- against ENS registry contract", func() {
 		BeforeEach(func() {
-			header1, err := blockChain.GetHeaderByNumber(6885695)
+			header1, err := headerFetcher.GetHeaderByNumber(6885695)
 			Expect(err).ToNot(HaveOccurred())
-			header2, err := blockChain.GetHeaderByNumber(6885696)
+			header2, err := headerFetcher.GetHeaderByNumber(6885696)
 			Expect(err).ToNot(HaveOccurred())
-			header3, err := blockChain.GetHeaderByNumber(6885697)
+			header3, err := headerFetcher.GetHeaderByNumber(6885697)
 			Expect(err).ToNot(HaveOccurred())
 			headerRepository.CreateOrUpdateHeader(header1)
 			headerID, err = headerRepository.CreateOrUpdateHeader(header2)
@@ -223,7 +226,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 		})
 
 		It("Transforms watched contract data into custom repositories", func() {
-			t := transformer.NewTransformer(test_helpers.ENSConfig, blockChain, db)
+			t := transformer.NewTransformer(test_helpers.ENSConfig, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			err = t.Execute()
@@ -246,7 +249,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 			testConf.Methods = map[string][]string{
 				ensAddr: {"owner"},
 			}
-			t := transformer.NewTransformer(testConf, blockChain, db)
+			t := transformer.NewTransformer(testConf, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			c, ok := t.Contracts[ensAddr]
@@ -275,7 +278,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 			testConf.Methods = map[string][]string{
 				ensAddr: {"owner"},
 			}
-			t := transformer.NewTransformer(testConf, blockChain, db)
+			t := transformer.NewTransformer(testConf, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			err = t.Execute()
@@ -303,7 +306,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 			testConf.EventArgs = map[string][]string{
 				ensAddr: {"fake_filter_value"},
 			}
-			t := transformer.NewTransformer(testConf, blockChain, db)
+			t := transformer.NewTransformer(testConf, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			err = t.Execute()
@@ -324,7 +327,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 			testConf.Methods = map[string][]string{
 				ensAddr: {"owner"},
 			}
-			t := transformer.NewTransformer(testConf, blockChain, db)
+			t := transformer.NewTransformer(testConf, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			err = t.Execute()
@@ -345,7 +348,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 	Describe("Execute- against both ENS and TrueUSD", func() {
 		BeforeEach(func() {
 			for i := 6885692; i <= 6885701; i++ {
-				header, err := blockChain.GetHeaderByNumber(int64(i))
+				header, err := headerFetcher.GetHeaderByNumber(int64(i))
 				Expect(err).ToNot(HaveOccurred())
 				_, err = headerRepository.CreateOrUpdateHeader(header)
 				Expect(err).ToNot(HaveOccurred())
@@ -353,7 +356,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 		})
 
 		It("Transforms watched contract data into custom repositories", func() {
-			t := transformer.NewTransformer(test_helpers.ENSandTusdConfig, blockChain, db)
+			t := transformer.NewTransformer(test_helpers.ENSandTusdConfig, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			err = t.Execute()
@@ -378,7 +381,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 		})
 
 		It("Marks header checked for a contract that has no logs at that header", func() {
-			t := transformer.NewTransformer(test_helpers.ENSandTusdConfig, blockChain, db)
+			t := transformer.NewTransformer(test_helpers.ENSandTusdConfig, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			err = t.Execute()
@@ -420,7 +423,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 				ensAddr:  {"owner"},
 				tusdAddr: {"balanceOf"},
 			}
-			t := transformer.NewTransformer(testConf, blockChain, db)
+			t := transformer.NewTransformer(testConf, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			ens, ok := t.Contracts[ensAddr]
@@ -461,7 +464,7 @@ var _ = Describe("contractWatcher headerSync transformer", func() {
 				ensAddr:  {"owner"},
 				tusdAddr: {"balanceOf"},
 			}
-			t := transformer.NewTransformer(testConf, blockChain, db)
+			t := transformer.NewTransformer(testConf, client, db)
 			err = t.Init()
 			Expect(err).ToNot(HaveOccurred())
 			err = t.Execute()

@@ -20,10 +20,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/contract"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers/mocks"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
+	"github.com/vulcanize/eth-contract-watcher/pkg/contract"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers/mocks"
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
 )
 
 var _ = Describe("Contract", func() {

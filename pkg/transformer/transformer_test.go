@@ -22,13 +22,15 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/retriever"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/transformer"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/contract"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers/mocks"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/parser"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/poller"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/fakes"
+	hf "github.com/vulcanize/eth-header-sync/pkg/fakes"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/contract"
+	"github.com/vulcanize/eth-contract-watcher/pkg/fakes"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers/mocks"
+	"github.com/vulcanize/eth-contract-watcher/pkg/parser"
+	"github.com/vulcanize/eth-contract-watcher/pkg/poller"
+	"github.com/vulcanize/eth-contract-watcher/pkg/retriever"
+	"github.com/vulcanize/eth-contract-watcher/pkg/transformer"
 )
 
 var _ = Describe("Transformer", func() {
@@ -64,13 +66,13 @@ var _ = Describe("Transformer", func() {
 
 		It("Fails to initialize if first block cannot be fetched from vDB headers table", func() {
 			blockRetriever := &fakes.MockHeaderSyncBlockRetriever{}
-			blockRetriever.FirstBlockErr = fakes.FakeError
+			blockRetriever.FirstBlockErr = hf.FakeError
 			t := getFakeTransformer(blockRetriever, &fakes.MockParser{}, &fakes.MockPoller{})
 
 			err := t.Init()
 
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring(fakes.FakeError.Error()))
+			Expect(err.Error()).To(ContainSubstring(hf.FakeError.Error()))
 		})
 	})
 
@@ -115,13 +117,13 @@ var _ = Describe("Transformer", func() {
 
 		It("returns error if fetching first block fails for other reason", func() {
 			blockRetriever := &fakes.MockHeaderSyncBlockRetriever{}
-			blockRetriever.FirstBlockErr = fakes.FakeError
+			blockRetriever.FirstBlockErr = hf.FakeError
 			t := getFakeTransformer(blockRetriever, &fakes.MockParser{}, &fakes.MockPoller{})
 
 			err := t.Init()
 
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring(fakes.FakeError.Error()))
+			Expect(err.Error()).To(ContainSubstring(hf.FakeError.Error()))
 		})
 	})
 })

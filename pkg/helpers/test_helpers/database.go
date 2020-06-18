@@ -21,17 +21,17 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/config"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/client"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/constants"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/contract"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers/mocks"
-	rpc2 "github.com/vulcanize/eth-contract-watcher/pkg/eth/converters/rpc"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/node"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
-	"github.com/vulcanize/eth-contract-watcher/test_config"
+	"github.com/vulcanize/eth-header-sync/pkg/client"
+	"github.com/vulcanize/eth-header-sync/pkg/config"
+	"github.com/vulcanize/eth-header-sync/pkg/core"
+	"github.com/vulcanize/eth-header-sync/pkg/fetcher"
+	"github.com/vulcanize/eth-header-sync/pkg/node"
+	"github.com/vulcanize/eth-header-sync/test_config"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/constants"
+	"github.com/vulcanize/eth-contract-watcher/pkg/contract"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers/mocks"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 )
 
 type TransferLog struct {
@@ -104,26 +104,36 @@ type Owner struct {
 	Address   string `db:"returned"`
 }
 
-func SetupDBandBC() (*postgres.DB, core.BlockChain) {
+func SetupHeaderFetcher() core.Fetcher {
 	con := test_config.TestClient
-	testIPC := con.IPCPath
-	rawRPCClient, err := rpc.Dial(testIPC)
+	rpcPath := con.RPCPath
+	rawRPCClient, err := rpc.Dial(rpcPath)
 	Expect(err).NotTo(HaveOccurred())
-	rpcClient := client.NewRPCClient(rawRPCClient, testIPC)
 	ethClient := ethclient.NewClient(rawRPCClient)
-	blockChainClient := client.NewEthClient(ethClient)
-	madeNode := node.MakeNode(rpcClient)
-	transactionConverter := rpc2.NewRPCTransactionConverter(ethClient)
-	blockChain := eth.NewBlockChain(blockChainClient, rpcClient, madeNode, transactionConverter)
+	rpcClient := client.NewRPCClient(rawRPCClient, rpcPath)
+	n := node.MakeNode(rpcClient)
+	Expect(err).NotTo(HaveOccurred())
+
+	return fetcher.NewFetcher(ethClient, rpcClient, n)
+}
+
+func SetupDBandClient() (*postgres.DB, core.EthClient) {
+	con := test_config.TestClient
+	rpcPath := con.RPCPath
+	rawRPCClient, err := rpc.Dial(rpcPath)
+	Expect(err).NotTo(HaveOccurred())
+	ethClient := ethclient.NewClient(rawRPCClient)
+	rpcClient := client.NewRPCClient(rawRPCClient, rpcPath)
+	n := node.MakeNode(rpcClient)
 
 	db, err := postgres.NewDB(config.Database{
 		Hostname: "localhost",
 		Name:     "vulcanize_testing",
 		Port:     5432,
-	}, blockChain.Node())
+	}, n)
 	Expect(err).NotTo(HaveOccurred())
 
-	return db, blockChain
+	return db, ethClient
 }
 
 func SetupTusdContract(wantedEvents, wantedMethods []string) *contract.Contract {
@@ -207,12 +217,6 @@ func TearDown(db *postgres.DB) {
 	Expect(err).NotTo(HaveOccurred())
 
 	_, err = tx.Exec(`DELETE FROM headers`)
-	Expect(err).NotTo(HaveOccurred())
-
-	_, err = tx.Exec("DELETE FROM header_sync_transactions")
-	Expect(err).NotTo(HaveOccurred())
-
-	_, err = tx.Exec(`DELETE FROM header_sync_receipts`)
 	Expect(err).NotTo(HaveOccurred())
 
 	_, err = tx.Exec(`DROP TABLE checked_headers`)

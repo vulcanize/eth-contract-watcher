@@ -26,11 +26,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/contract"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/repository"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	hc "github.com/vulcanize/eth-header-sync/pkg/core"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/contract"
+	"github.com/vulcanize/eth-contract-watcher/pkg/core"
+	"github.com/vulcanize/eth-contract-watcher/pkg/fetcher"
+	"github.com/vulcanize/eth-contract-watcher/pkg/repository"
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
 )
 
 // Poller is the interface for polling public contract methods
@@ -42,15 +45,15 @@ type Poller interface {
 
 type poller struct {
 	repository.MethodRepository
-	bc       core.BlockChain
+	fetcher  core.Fetcher
 	contract contract.Contract
 }
 
 // NewPoller returns a new Poller
-func NewPoller(blockChain core.BlockChain, db *postgres.DB, mode types.Mode) Poller {
+func NewPoller(client hc.EthClient, db *postgres.DB, mode types.Mode) Poller {
 	return &poller{
 		MethodRepository: repository.NewMethodRepository(db, mode),
-		bc:               blockChain,
+		fetcher:          fetcher.NewFetcher(client),
 	}
 }
 
@@ -100,7 +103,7 @@ func (p *poller) pollNoArgAt(m types.Method, bn int64) error {
 	}
 
 	var out interface{}
-	err := p.bc.FetchContractData(p.contract.Abi, p.contract.Address, m.Name, nil, &out, bn)
+	err := p.fetcher.FetchContractData(p.contract.Abi, p.contract.Address, m.Name, nil, &out, bn)
 	if err != nil {
 		return fmt.Errorf("poller error calling 0 argument method\r\nblock: %d, method: %s, contract: %s\r\nerr: %v", bn, m.Name, p.contract.Address, err)
 	}
@@ -150,7 +153,7 @@ func (p *poller) pollSingleArgAt(m types.Method, bn int64) error {
 		strIn := []interface{}{contract.StringifyArg(arg)}
 
 		var out interface{}
-		err := p.bc.FetchContractData(p.contract.Abi, p.contract.Address, m.Name, in, &out, bn)
+		err := p.fetcher.FetchContractData(p.contract.Abi, p.contract.Address, m.Name, in, &out, bn)
 		if err != nil {
 			return fmt.Errorf("poller error calling 1 argument method\r\nblock: %d, method: %s, contract: %s\r\nerr: %v", bn, m.Name, p.contract.Address, err)
 		}
@@ -214,7 +217,7 @@ func (p *poller) pollDoubleArgAt(m types.Method, bn int64) error {
 			strIn := []interface{}{contract.StringifyArg(arg1), contract.StringifyArg(arg2)}
 
 			var out interface{}
-			err := p.bc.FetchContractData(p.contract.Abi, p.contract.Address, m.Name, in, &out, bn)
+			err := p.fetcher.FetchContractData(p.contract.Abi, p.contract.Address, m.Name, in, &out, bn)
 			if err != nil {
 				return fmt.Errorf("poller error calling 2 argument method\r\nblock: %d, method: %s, contract: %s\r\nerr: %v", bn, m.Name, p.contract.Address, err)
 			}
@@ -240,7 +243,7 @@ func (p *poller) pollDoubleArgAt(m types.Method, bn int64) error {
 
 // FetchContractData is just a wrapper around the poller blockchain's FetchContractData method
 func (p *poller) FetchContractData(contractAbi, contractAddress, method string, methodArgs []interface{}, result interface{}, blockNumber int64) error {
-	return p.bc.FetchContractData(contractAbi, contractAddress, method, methodArgs, result, blockNumber)
+	return p.fetcher.FetchContractData(contractAbi, contractAddress, method, methodArgs, result, blockNumber)
 }
 
 // This is used to cache a method return value if method piping is turned on

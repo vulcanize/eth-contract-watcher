@@ -17,7 +17,7 @@
 package retriever
 
 import (
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 )
 
 // BlockRetriever is used to retrieve the first block for a given contract and the most recent block

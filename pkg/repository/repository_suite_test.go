@@ -27,7 +27,7 @@ import (
 
 func TestRepository(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Header Sync Repository Suite Test")
+	RunSpecs(t, "Repository Suite Test")
 }
 
 var _ = BeforeSuite(func() {

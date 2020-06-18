@@ -23,12 +23,13 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/constants"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/contract"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/repository"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/constants"
+	"github.com/vulcanize/eth-contract-watcher/pkg/contract"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers"
+	"github.com/vulcanize/eth-contract-watcher/pkg/repository"
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
 )
 
 var _ = Describe("Repository", func() {
@@ -52,7 +53,7 @@ var _ = Describe("Repository", func() {
 		}
 		mockResult.Inputs[0] = "0xfE9e8709d3215310075d67E3ed32A380CCf451C8"
 		mockResult.Output = "66386309548896882859581786"
-		db, _ = test_helpers.SetupDBandBC()
+		db, _ = test_helpers.SetupDBandClient()
 		dataStore = repository.NewMethodRepository(db, types.FullSync)
 	})
 

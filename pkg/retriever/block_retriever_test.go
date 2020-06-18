@@ -20,21 +20,22 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/retriever"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/helpers/test_helpers/mocks"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/datastore/postgres/repositories"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/repository"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers"
+	"github.com/vulcanize/eth-contract-watcher/pkg/helpers/test_helpers/mocks"
+	"github.com/vulcanize/eth-contract-watcher/pkg/retriever"
 )
 
 var _ = Describe("Block Retriever", func() {
 	var db *postgres.DB
 	var r retriever.BlockRetriever
-	var headerRepository repositories.HeaderRepository
+	var headerRepository repository.HeaderRepository
 
 	BeforeEach(func() {
-		db, _ = test_helpers.SetupDBandBC()
-		headerRepository = repositories.NewHeaderRepository(db)
+		db, _ = test_helpers.SetupDBandClient()
+		headerRepository = repository.NewHeaderRepository(db)
 		r = retriever.NewBlockRetriever(db)
 	})
 

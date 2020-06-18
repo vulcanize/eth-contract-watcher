@@ -23,9 +23,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/core"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/filters"
+	"github.com/vulcanize/eth-contract-watcher/pkg/core"
+	"github.com/vulcanize/eth-contract-watcher/pkg/filters"
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
 )
 
 // Contract object to hold our contract data

@@ -14,12 +14,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package integration
+package integration_test
 
 import (
-	"math/big"
-
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	. "github.com/onsi/ginkgo"
@@ -27,29 +24,27 @@ import (
 
 	"github.com/vulcanize/eth-header-sync/test_config"
 
+	a "github.com/vulcanize/eth-contract-watcher/pkg/abi"
+	"github.com/vulcanize/eth-contract-watcher/pkg/constants"
 	"github.com/vulcanize/eth-contract-watcher/pkg/fetcher"
-	"github.com/vulcanize/eth-contract-watcher/pkg/testing"
 )
 
-var _ = Describe("Reading contracts", func() {
-	Describe("Fetching Contract data", func() {
-		It("returns the correct attribute for a real contract", func() {
-			rawRPCClient, err := rpc.Dial(test_config.TestClient.RPCPath)
+var _ = Describe("Interface Getter", func() {
+	Describe("GetAbi", func() {
+		It("Constructs and returns a custom abi based on results from supportsInterface calls", func() {
+			expectedABI := `[` + constants.AddrChangeInterface + `,` + constants.NameChangeInterface + `,` + constants.ContentChangeInterface + `,` + constants.AbiChangeInterface + `,` + constants.PubkeyChangeInterface + `]`
+			con := test_config.TestClient
+			testIPC := con.RPCPath
+			blockNumber := int64(6885696)
+			rawRpcClient, err := rpc.Dial(testIPC)
 			Expect(err).NotTo(HaveOccurred())
-			ethClient := ethclient.NewClient(rawRPCClient)
+			ethClient := ethclient.NewClient(rawRpcClient)
 			f := fetcher.NewFetcher(ethClient)
-
-			contract := testing.SampleContract()
-			var balance = new(big.Int)
-
-			args := make([]interface{}, 1)
-			args[0] = common.HexToHash("0xd26114cd6ee289accf82350c8d8487fedb8a0c07")
-
-			err = f.FetchContractData(contract.Abi, "0xd26114cd6ee289accf82350c8d8487fedb8a0c07", "balanceOf", args, &balance, 5167471)
+			abi, err := f.FetchABI(constants.PublicResolverAddress, blockNumber)
 			Expect(err).NotTo(HaveOccurred())
-			expected := new(big.Int)
-			expected.SetString("10897295492887612977137", 10)
-			Expect(balance).To(Equal(expected))
+			Expect(abi).To(Equal(expectedABI))
+			_, err = a.ParseAbi(abi)
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 })

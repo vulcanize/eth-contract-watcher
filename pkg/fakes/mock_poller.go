@@ -14,24 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package helpers
+package fakes
 
 import (
-	"math/big"
-
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/vulcanize/eth-contract-watcher/pkg/contract"
 )
 
-// BigFromString creates a big.Int from a string
-func BigFromString(n string) *big.Int {
-	b := new(big.Int)
-	b.SetString(n, 10)
-	return b
+type MockPoller struct {
+	ContractName string
 }
 
-// GenerateSignature returns the keccak256 hash hex of a string
-func GenerateSignature(s string) string {
-	eventSignature := []byte(s)
-	hash := crypto.Keccak256Hash(eventSignature)
-	return hash.Hex()
+func (*MockPoller) PollContract(con contract.Contract, lastBlock int64) error {
+	panic("implement me")
+}
+
+func (*MockPoller) PollContractAt(con contract.Contract, blockNumber int64) error {
+	panic("implement me")
+}
+
+func (poller *MockPoller) FetchContractData(contractAbi, contractAddress, method string, methodArgs []interface{}, result interface{}, blockNumber int64) error {
+	if p, ok := result.(*string); ok {
+		*p = poller.ContractName
+	}
+	return nil
 }

@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/vulcanize/eth-contract-watcher/pkg/config"
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/constants"
+	"github.com/vulcanize/eth-contract-watcher/pkg/constants"
 )
 
 var ens = strings.ToLower(constants.EnsContractAddress)

@@ -24,8 +24,9 @@ import (
 	"github.com/hashicorp/golang-lru"
 	"github.com/sirupsen/logrus"
 
-	"github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/shared/types"
-	"github.com/vulcanize/eth-contract-watcher/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/types"
 )
 
 const methodCacheSize = 1000

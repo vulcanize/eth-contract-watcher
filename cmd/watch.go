@@ -23,10 +23,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	st "github.com/vulcanize/eth-contract-watcher/libraries/shared/transformer"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+
 	"github.com/vulcanize/eth-contract-watcher/pkg/config"
-	ht "github.com/vulcanize/eth-contract-watcher/pkg/eth/contract_watcher/header/transformer"
-	"github.com/vulcanize/eth-contract-watcher/utils"
+	st "github.com/vulcanize/eth-contract-watcher/pkg/transformer"
 )
 
 // watchCmd represents the watch command
@@ -88,23 +88,25 @@ func watch() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	blockChain := getBlockChain()
-	db := utils.LoadPostgres(databaseConfig, blockChain.Node())
+	client, node := getClientAndNode()
 
-	var t st.ContractTransformer
+	db, err := postgres.NewDB(databaseConfig, node)
+	if err != nil {
+		logWithCommand.Fatal(err)
+	}
+
 	con := config.ContractConfig{}
 	con.PrepConfig()
-	t = ht.NewTransformer(con, blockChain, &db)
+	transformer := st.NewTransformer(con, client, db)
 
-	err := t.Init()
-	if err != nil {
+	if err := transformer.Init(); err != nil {
 		logWithCommand.Fatal(fmt.Sprintf("Failed to initialize transformer, err: %v ", err))
 	}
 
 	for range ticker.C {
-		err = t.Execute()
+		err = transformer.Execute()
 		if err != nil {
-			logWithCommand.Error("Execution error for transformer: ", t.GetConfig().Name, err)
+			logWithCommand.Error("Execution error for transformer: ", transformer.GetConfig().Name, err)
 		}
 	}
 }
