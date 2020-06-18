@@ -19,7 +19,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	v "github.com/vulcanize/vulcanizedb/version"
+	v "github.com/vulcanize/eth-contract-watcher/version"
 )
 
 // versionCmd represents the version command
@@ -28,7 +28,7 @@ var versionCmd = &cobra.Command{
 	Short: "Prints the version of vulcanizeDB",
 	Long: `Use this command to fetch the version of vulcanizeDB
 
-Usage: ./vulcanizedb version`,
+Usage: ./eth-contract-watcher version`,
 	Run: func(cmd *cobra.Command, args []string) {
 		subCommand = cmd.CalledAs()
 		logWithCommand = *log.WithField("SubCommand", subCommand)

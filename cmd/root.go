@@ -17,11 +17,9 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -29,35 +27,22 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/vulcanize/vulcanizedb/pkg/config"
-	"github.com/vulcanize/vulcanizedb/pkg/eth"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/client"
-	vRpc "github.com/vulcanize/vulcanizedb/pkg/eth/converters/rpc"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/node"
+	"github.com/vulcanize/eth-header-sync/pkg/client"
+	hc "github.com/vulcanize/eth-header-sync/pkg/config"
+	"github.com/vulcanize/eth-header-sync/pkg/core"
+	"github.com/vulcanize/eth-header-sync/pkg/node"
 )
 
 var (
-	cfgFile              string
-	databaseConfig       config.Database
-	genConfig            config.Plugin
-	ipc                  string
-	queueRecheckInterval time.Duration
-	startingBlockNumber  int64
-	storageDiffsPath     string
-	recheckHeadersArg    bool
-	subCommand           string
-	logWithCommand       log.Entry
-	storageDiffsSource   string
-)
-
-const (
-	pollingInterval  = 7 * time.Second
-	validationWindow = 15
+	cfgFile        string
+	databaseConfig hc.Database
+	ipc            string
+	subCommand     string
+	logWithCommand log.Entry
 )
 
 var rootCmd = &cobra.Command{
-	Use:              "vulcanizedb",
+	Use:              "eth-contract-watcher",
 	PersistentPreRun: initFuncs,
 }
 
@@ -91,9 +76,7 @@ func initFuncs(cmd *cobra.Command, args []string) {
 
 func setViperConfigs() {
 	ipc = viper.GetString("client.ipcpath")
-	storageDiffsPath = viper.GetString("filesystem.storageDiffsPath")
-	storageDiffsSource = viper.GetString("storageDiffs.source")
-	databaseConfig = config.Database{
+	databaseConfig = hc.Database{
 		Name:     viper.GetString("database.name"),
 		Hostname: viper.GetString("database.hostname"),
 		Port:     viper.GetInt("database.port"),
@@ -163,34 +146,11 @@ func initConfig() {
 	}
 }
 
-func getBlockChain() *eth.BlockChain {
-	rpcClient, ethClient := getClients()
-	vdbEthClient := client.NewEthClient(ethClient)
-	vdbNode := node.MakeNode(rpcClient)
-	transactionConverter := vRpc.NewRPCTransactionConverter(ethClient)
-	return eth.NewBlockChain(vdbEthClient, rpcClient, vdbNode, transactionConverter)
-}
-
-func getClients() (client.RPCClient, *ethclient.Client) {
+func getClientAndNode() (*ethclient.Client, core.Node) {
 	rawRPCClient, err := rpc.Dial(ipc)
-
 	if err != nil {
 		logWithCommand.Fatal(err)
 	}
 	rpcClient := client.NewRPCClient(rawRPCClient, ipc)
-	ethClient := ethclient.NewClient(rawRPCClient)
-
-	return rpcClient, ethClient
-}
-
-func getWSClient() core.RPCClient {
-	wsRPCpath := viper.GetString("client.wsPath")
-	if wsRPCpath == "" {
-		logWithCommand.Fatal(errors.New("getWSClient() was called but no ws rpc path is provided"))
-	}
-	wsRPCClient, dialErr := rpc.Dial(wsRPCpath)
-	if dialErr != nil {
-		logWithCommand.Fatal(dialErr)
-	}
-	return client.NewRPCClient(wsRPCClient, wsRPCpath)
+	return ethclient.NewClient(rawRPCClient), node.MakeNode(rpcClient)
 }

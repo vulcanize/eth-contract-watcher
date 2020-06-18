@@ -21,7 +21,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/vulcanize/vulcanizedb/pkg/eth"
+	a "github.com/vulcanize/eth-contract-watcher/pkg/abi"
 )
 
 // Config struct for generic contract transformer
@@ -99,7 +99,7 @@ func (contractConfig *ContractConfig) PrepConfig() {
 			}
 		}
 		if abi != "" {
-			if _, abiErr := eth.ParseAbi(abi); abiErr != nil {
+			if _, abiErr := a.ParseAbi(abi); abiErr != nil {
 				log.Fatal(addr, "transformer `abi` not valid JSON")
 			}
 		}

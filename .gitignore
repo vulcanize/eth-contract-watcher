@@ -7,7 +7,7 @@ Vagrantfile
 vagrant*.sh
 .vagrant
 test_scripts/
-vulcanizedb
+eth-contract-watcher
 postgraphile/build/
 postgraphile/node_modules/
 postgraphile/package-lock.json

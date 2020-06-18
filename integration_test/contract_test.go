@@ -25,74 +25,19 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/client"
-	rpc2 "github.com/vulcanize/vulcanizedb/pkg/eth/converters/rpc"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/node"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/testing"
-	"github.com/vulcanize/vulcanizedb/test_config"
+	"github.com/vulcanize/eth-header-sync/test_config"
+
+	"github.com/vulcanize/eth-contract-watcher/pkg/fetcher"
+	"github.com/vulcanize/eth-contract-watcher/pkg/testing"
 )
 
 var _ = Describe("Reading contracts", func() {
-
-	Describe("Getting a contract attribute", func() {
-		It("retrieves the event log for a specific block and contract", func() {
-			expectedLogZero := core.FullSyncLog{
-				BlockNumber: 4703824,
-				TxHash:      "0xf896bfd1eb539d881a1a31102b78de9f25cd591bf1fe1924b86148c0b205fd5d",
-				Address:     "0xd26114cd6ee289accf82350c8d8487fedb8a0c07",
-				Topics: core.Topics{
-					0: "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-					1: "0x000000000000000000000000fbb1b73c4f0bda4f67dca266ce6ef42f520fbb98",
-					2: "0x000000000000000000000000d26114cd6ee289accf82350c8d8487fedb8a0c07",
-				},
-				Index: 19,
-				Data:  "0x0000000000000000000000000000000000000000000000000c7d713b49da0000"}
-			rawRPCClient, err := rpc.Dial(test_config.TestClient.IPCPath)
-			Expect(err).NotTo(HaveOccurred())
-			rpcClient := client.NewRPCClient(rawRPCClient, test_config.TestClient.IPCPath)
-			ethClient := ethclient.NewClient(rawRPCClient)
-			blockChainClient := client.NewEthClient(ethClient)
-			node := node.MakeNode(rpcClient)
-			transactionConverter := rpc2.NewRPCTransactionConverter(ethClient)
-			blockChain := eth.NewBlockChain(blockChainClient, rpcClient, node, transactionConverter)
-			contract := testing.SampleContract()
-
-			logs, err := blockChain.GetFullSyncLogs(contract, big.NewInt(4703824), nil)
-
-			Expect(err).To(BeNil())
-			Expect(len(logs)).To(Equal(3))
-			Expect(logs[0]).To(Equal(expectedLogZero))
-		})
-
-		It("returns and empty log array when no events for a given block / contract combo", func() {
-			rawRPCClient, err := rpc.Dial(test_config.TestClient.IPCPath)
-			Expect(err).NotTo(HaveOccurred())
-			rpcClient := client.NewRPCClient(rawRPCClient, test_config.TestClient.IPCPath)
-			ethClient := ethclient.NewClient(rawRPCClient)
-			blockChainClient := client.NewEthClient(ethClient)
-			node := node.MakeNode(rpcClient)
-			transactionConverter := rpc2.NewRPCTransactionConverter(ethClient)
-			blockChain := eth.NewBlockChain(blockChainClient, rpcClient, node, transactionConverter)
-
-			logs, err := blockChain.GetFullSyncLogs(core.Contract{Hash: "0x123"}, big.NewInt(4703824), nil)
-
-			Expect(err).To(BeNil())
-			Expect(len(logs)).To(Equal(0))
-		})
-	})
-
 	Describe("Fetching Contract data", func() {
 		It("returns the correct attribute for a real contract", func() {
-			rawRPCClient, err := rpc.Dial(test_config.TestClient.IPCPath)
+			rawRPCClient, err := rpc.Dial(test_config.TestClient.RPCPath)
 			Expect(err).NotTo(HaveOccurred())
-			rpcClient := client.NewRPCClient(rawRPCClient, test_config.TestClient.IPCPath)
 			ethClient := ethclient.NewClient(rawRPCClient)
-			blockChainClient := client.NewEthClient(ethClient)
-			node := node.MakeNode(rpcClient)
-			transactionConverter := rpc2.NewRPCTransactionConverter(ethClient)
-			blockChain := eth.NewBlockChain(blockChainClient, rpcClient, node, transactionConverter)
+			f := fetcher.NewFetcher(ethClient)
 
 			contract := testing.SampleContract()
 			var balance = new(big.Int)
@@ -100,7 +45,7 @@ var _ = Describe("Reading contracts", func() {
 			args := make([]interface{}, 1)
 			args[0] = common.HexToHash("0xd26114cd6ee289accf82350c8d8487fedb8a0c07")
 
-			err = blockChain.FetchContractData(contract.Abi, "0xd26114cd6ee289accf82350c8d8487fedb8a0c07", "balanceOf", args, &balance, 5167471)
+			err = f.FetchContractData(contract.Abi, "0xd26114cd6ee289accf82350c8d8487fedb8a0c07", "balanceOf", args, &balance, 5167471)
 			Expect(err).NotTo(HaveOccurred())
 			expected := new(big.Int)
 			expected.SetString("10897295492887612977137", 10)

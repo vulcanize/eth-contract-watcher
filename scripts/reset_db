@@ -2,7 +2,7 @@
 # Provide me with a postgres database name, and I will:
 # - Drop the database
 # - Recreate the database
-# - Run the vulcanizedb migration
+# - Run the eth-contract-watcher migration
 
 if [ "$1" = "" ]; then
     echo "Provide a database name to reset"
@@ -11,9 +11,9 @@ fi
 
 db=$1
 dir=$(basename "$(pwd)")
-if [ $dir != "vulcanizedb" ]
+if [ $dir != "eth-contract-watcher" ]
 then
-  echo "Run me from the vulcanizedb root dir"
+  echo "Run me from the eth-contract-watcher root dir"
   exit 1
 fi
 
