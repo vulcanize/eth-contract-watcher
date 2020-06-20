@@ -213,9 +213,6 @@ func TearDown(db *postgres.DB) {
 	tx, err := db.Beginx()
 	Expect(err).NotTo(HaveOccurred())
 
-	_, err = tx.Exec(`DELETE FROM addresses`)
-	Expect(err).NotTo(HaveOccurred())
-
 	_, err = tx.Exec(`DELETE FROM headers`)
 	Expect(err).NotTo(HaveOccurred())
 

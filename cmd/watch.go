@@ -45,7 +45,7 @@ Requires a .toml config file:
     port     = 5432
 
   [client]
-    ipcPath  = "/Users/user/Library/Ethereum/geth.ipc"
+    rpcPath  = "/Users/user/Library/Ethereum/geth.ipc"
 
   [contract]
     network  = ""

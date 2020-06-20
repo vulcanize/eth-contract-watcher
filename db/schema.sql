@@ -21,37 +21,6 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: addresses; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.addresses (
-    id integer NOT NULL,
-    address character varying(42),
-    hashed_address character varying(66)
-);
-
-
---
--- Name: addresses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.addresses_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: addresses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.addresses_id_seq OWNED BY public.addresses.id;
-
-
---
 -- Name: checked_headers; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -183,13 +152,6 @@ ALTER SEQUENCE public.nodes_id_seq OWNED BY public.nodes.id;
 
 
 --
--- Name: addresses id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.addresses ALTER COLUMN id SET DEFAULT nextval('public.addresses_id_seq'::regclass);
-
-
---
 -- Name: checked_headers id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -215,22 +177,6 @@ ALTER TABLE ONLY public.headers ALTER COLUMN id SET DEFAULT nextval('public.head
 --
 
 ALTER TABLE ONLY public.nodes ALTER COLUMN id SET DEFAULT nextval('public.nodes_id_seq'::regclass);
-
-
---
--- Name: addresses addresses_address_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.addresses
-    ADD CONSTRAINT addresses_address_key UNIQUE (address);
-
-
---
--- Name: addresses addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.addresses
-    ADD CONSTRAINT addresses_pkey PRIMARY KEY (id);
 
 
 --
