@@ -4,7 +4,7 @@
     port     = 5432
 
 [client]
-    ipcPath  = ""
+    rpcPath  = ""
 
 [contract]
     network  = ""

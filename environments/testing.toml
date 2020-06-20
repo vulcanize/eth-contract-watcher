@@ -4,4 +4,4 @@
   port     = 5432
 
 [client]
-  ipcPath  = "http://127.0.0.1:8545"
+  rpcPath  = "http://127.0.0.1:8545"
