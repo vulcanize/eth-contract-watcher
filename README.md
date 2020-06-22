@@ -206,16 +206,12 @@ Modify `./environments/example.toml` to replace the empty `rpcPath` with a path 
 This endpoint should be for an archival eth node if we want to perform method polling as this configuration is currently set up to do. To work with a non-archival full node,
 remove the `balanceOf` method from the `0x8dd5fbce2f6a956c3022ba3663759011dd51e73e` (TrueUSD) contract.
 
-If you are operating a header sync vDB, run:
+Run:
 
- `./eth-contract-watcher contractWatcher --config=./environments/example.toml --mode=header`
+ `./eth-contract-watcher contractWatcher --config=./environments/example.toml`
 
-If instead you are operating a full sync vDB and provided an archival node IPC path, run in full mode:
 
- `./eth-contract-watcher contractWatcher --config=./environments/example.toml --mode=full`
-
-This will run the contractWatcher and configures it to watch the contracts specified in the config file. Note that
-by default we operate in `header` mode but the flag is included here to demonstrate its use.
+This will run the contractWatcher and configures it to watch the contracts specified in the config file.
 
 The example config we link to in this example watches two contracts, the ENS Registry (0x314159265dD8dbb310642f98f50C066173C1259b) and TrueUSD (0x8dd5fbCe2F6a956C3022bA3663759011Dd51e73E).
 
