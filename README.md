@@ -42,7 +42,7 @@ It also provides some state variable coverage by automating polling of public ge
 1. The method's arguments must all be of type address or bytes32 (hash)
 1. The method must return a single value
 
-In the future we intend to expand the functionality to support direct watching of storage slots by leveraging a [state-diffing Ethereum client]()
+In the future we intend to expand the functionality to support direct watching of storage slots by leveraging a [state-diffing Ethereum client](https://github.com/vulcanize/go-ethereum/tree/statediff_at_anyblock-1.9.13)
 
 Note:
 
