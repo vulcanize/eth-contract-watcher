@@ -1,0 +1,108 @@
+version: '3.2'
+
+services:
+  geth:
+    build:
+      context: ./../
+      cache_from:
+      - alpine:latest
+      - golang:1.13
+      dockerfile: ./dockerfiles/geth/Dockerfile
+    expose:
+    - "8545"
+    - "8546"
+    ports:
+    - "127.0.0.1:8545:8545"
+    - "127.0.0.1:8546:8546"
+    command: ["--syncmode", "full",
+              "--cache", "4096",
+              "--cache.database", "50",
+              "--cache.gc", "50",
+              "--rpc",
+              "--rpcapi", "eth,net"]
+
+  pgdb:
+    restart: always
+    image: postgres:10.12-alpine
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "vulcanize_public"
+      POSTGRES_PASSWORD: "password"
+    volumes:
+    - vulcanizedb_db_data:/var/lib/postgresql/data
+    expose:
+    - "5432"
+    ports:
+    - "127.0.0.1:8079:5432"
+
+  eth-header-sync:
+    depends_on:
+    - pgdb
+    build:
+      context: ./../
+      cache_from:
+      - alpine:latest
+      - golang:1.13
+      dockerfile: ./dockerfiles/header_sync/Dockerfile
+      args:
+        USER: "vdm"
+        CONFIG_FILE: ./environments/example.toml
+    environment:
+      STARTING_BLOCK_NUMBER: 3327410
+      VDB_COMMAND: "sync"
+      DATABASE_NAME: "vulcanize_public"
+      DATABASE_HOSTNAME: "db"
+      DATABASE_PORT: 5432
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: "password"
+    ports:
+    - "127.0.0.1:8080:8080"
+    - "127.0.0.1:8081:8081"
+
+  eth-contract-watcher:
+    depends_on:
+    - pgdb
+    build:
+      context: ./../
+      cache_from:
+      - alpine:latest
+      - golang:1.13
+      dockerfile: ./dockerfiles/Dockerfile
+      args:
+        USER: "vdm"
+        CONFIG_FILE: ./environments/example.toml
+    environment:
+      VDB_COMMAND: "watch"
+      DATABASE_NAME: "vulcanize_public"
+      DATABASE_HOSTNAME: "db"
+      DATABASE_PORT: 5432
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: "password"
+    ports:
+    - "127.0.0.1:8080:8080"
+    - "127.0.0.1:8081:8081"
+
+  graphql:
+    restart: always
+    depends_on:
+    - pgdb
+    build:
+      context: ./../
+      cache_from:
+      - node:alpine
+      dockerfile: ./dockerfiles/postgraphile/Dockerfile
+    expose:
+    - "5000"
+    ports:
+    - "127.0.0.1:5000:5000"
+    command: ["--plugins", "@graphile/pg-pubsub",
+              "--subscriptions",
+              "--simple-subscriptions",
+              "--connection", "postgres://postgres:password@db:5432/vulcanize_public",
+              "--port", "5000",
+              "-n", "0.0.0.0",
+              "--schema", "public,eth",
+              "--append-plugins", "postgraphile-plugin-connection-filter"]
+
+volumes:
+  vulcanizedb_db_data:
