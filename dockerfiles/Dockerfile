@@ -29,9 +29,7 @@ USER $USER
 # chown first so dir is writable
 # note: using $USER is merged, but not in the stable release yet
 COPY --chown=5000:5000 --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/$CONFIG_FILE config.toml
-COPY --chown=5000:5000 --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/dockerfiles/super_node/startup_script.sh .
-COPY --chown=5000:5000 --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/dockerfiles/super_node/entrypoint.sh .
-
+COPY --chown=5000:5000 --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/dockerfiles/startup_script.sh .
 
 # keep binaries immutable
 COPY --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/eth-contract-watcher eth-contract-watcher

@@ -2,10 +2,12 @@ FROM golang:1.13-alpine as builder
 
 RUN apk --update --no-cache add make git g++ linux-headers
 
+# Add this repo for the startup_script
+ADD . /go/src/github.com/vulcanize/eth-contract-watcher
+
 # Get and build eth-header-sync
 RUN go get -d github.com/vulcanize/eth-header-sync
 WORKDIR /go/src/github.com/vulcanize/eth-header-sync
-RUN git checkout -b header_sync tags/v0.0.10-alpha
 RUN GO111MODULE=on GCO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o eth-header-sync .
 
 # Build migration tool
@@ -30,7 +32,7 @@ USER $USER
 # chown first so dir is writable
 # note: using $USER is merged, but not in the stable release yet
 COPY --chown=5000:5000 --from=builder /go/src/github.com/vulcanize/eth-header-sync/$CONFIG_FILE config.toml
-COPY --chown=5000:5000 --from=builder /go/src/github.com/vulcanize/eth-header-sync/dockerfiles/super_node/startup_script.sh .
+COPY --chown=5000:5000 --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/dockerfiles/header_sync/startup_script.sh .
 
 # keep binaries immutable
 COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/eth-header-sync eth-header-sync

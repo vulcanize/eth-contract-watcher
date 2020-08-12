@@ -21,7 +21,7 @@ services:
               "--rpc",
               "--rpcapi", "eth,net"]
 
-  pgdb:
+  contact-watcher-db:
     restart: always
     image: postgres:10.12-alpine
     environment:
@@ -37,7 +37,7 @@ services:
 
   eth-header-sync:
     depends_on:
-    - pgdb
+    - contact-watcher-db
     build:
       context: ./../
       cache_from:
@@ -47,6 +47,8 @@ services:
       args:
         USER: "vdm"
         CONFIG_FILE: ./environments/example.toml
+    volumes:
+      - ./geth.ipc:/geth.ipc
     environment:
       STARTING_BLOCK_NUMBER: 3327410
       VDB_COMMAND: "sync"
@@ -55,13 +57,10 @@ services:
       DATABASE_PORT: 5432
       DATABASE_USER: "postgres"
       DATABASE_PASSWORD: "password"
-    ports:
-    - "127.0.0.1:8080:8080"
-    - "127.0.0.1:8081:8081"
 
   eth-contract-watcher:
     depends_on:
-    - pgdb
+    - contact-watcher-db
     build:
       context: ./../
       cache_from:
@@ -71,6 +70,8 @@ services:
       args:
         USER: "vdm"
         CONFIG_FILE: ./environments/example.toml
+    volumes:
+     - ./geth.ipc/geth.ipc
     environment:
       VDB_COMMAND: "watch"
       DATABASE_NAME: "vulcanize_public"
@@ -78,14 +79,11 @@ services:
       DATABASE_PORT: 5432
       DATABASE_USER: "postgres"
       DATABASE_PASSWORD: "password"
-    ports:
-    - "127.0.0.1:8080:8080"
-    - "127.0.0.1:8081:8081"
 
-  graphql:
+  contract-watcher-graphql:
     restart: always
     depends_on:
-    - pgdb
+    - contact-watcher-db
     build:
       context: ./../
       cache_from:
@@ -98,7 +96,7 @@ services:
     command: ["--plugins", "@graphile/pg-pubsub",
               "--subscriptions",
               "--simple-subscriptions",
-              "--connection", "postgres://postgres:password@db:5432/vulcanize_public",
+              "--connection", "postgres://postgres:password@contact-watcher-db:5432/vulcanize_public",
               "--port", "5000",
               "-n", "0.0.0.0",
               "--schema", "public,eth",
