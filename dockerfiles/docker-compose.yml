@@ -25,9 +25,9 @@ services:
     restart: always
     image: postgres:10.12-alpine
     environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_DB: "vulcanize_public"
-      POSTGRES_PASSWORD: "password"
+      - POSTGRES_USER=vdbm
+      - POSTGRES_DB=vulcanize_public
+      - POSTGRES_PASSWORD=password
     volumes:
     - vulcanizedb_db_data:/var/lib/postgresql/data
     expose:
@@ -50,13 +50,13 @@ services:
     volumes:
       - ./geth.ipc:/geth.ipc
     environment:
-      STARTING_BLOCK_NUMBER: 3327410
-      VDB_COMMAND: "sync"
-      DATABASE_NAME: "vulcanize_public"
-      DATABASE_HOSTNAME: "db"
-      DATABASE_PORT: 5432
-      DATABASE_USER: "postgres"
-      DATABASE_PASSWORD: "password"
+      - STARTING_BLOCK_NUMBER=3327410
+      - VDB_COMMAND=sync
+      - DATABASE_NAME=vulcanize_public
+      - DATABASE_HOSTNAME=contact-watcher-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=vdbm
+      - DATABASE_PASSWORD=password
 
   eth-contract-watcher:
     depends_on:
@@ -71,14 +71,14 @@ services:
         USER: "vdm"
         CONFIG_FILE: ./environments/example.toml
     volumes:
-     - ./geth.ipc/geth.ipc
+     - ./geth.ipc:/geth.ipc
     environment:
-      VDB_COMMAND: "watch"
-      DATABASE_NAME: "vulcanize_public"
-      DATABASE_HOSTNAME: "db"
-      DATABASE_PORT: 5432
-      DATABASE_USER: "postgres"
-      DATABASE_PASSWORD: "password"
+      - VDB_COMMAND=watch
+      - DATABASE_NAME=vulcanize_public
+      - DATABASE_HOSTNAME=contact-watcher-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=vdbm
+      - DATABASE_PASSWORD=password
 
   contract-watcher-graphql:
     restart: always
@@ -96,7 +96,7 @@ services:
     command: ["--plugins", "@graphile/pg-pubsub",
               "--subscriptions",
               "--simple-subscriptions",
-              "--connection", "postgres://postgres:password@contact-watcher-db:5432/vulcanize_public",
+              "--connection", "postgres://vdbm:password@contact-watcher-db:5432/vulcanize_public",
               "--port", "5000",
               "-n", "0.0.0.0",
               "--schema", "public,eth",

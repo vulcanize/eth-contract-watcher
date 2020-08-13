@@ -9,7 +9,7 @@ RUN GO111MODULE=on GCO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldfl
 
 # Build migration tool
 WORKDIR /
-RUN go get -d github.com/pressly/goose/cmd/goose
+RUN git clone https://github.com/pressly/goose.git /go/src/github.com/pressly/goose/
 WORKDIR /go/src/github.com/pressly/goose/cmd/goose
 RUN GCO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -tags='no_mysql no_sqlite' -o goose .
 
