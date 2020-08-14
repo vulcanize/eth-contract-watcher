@@ -62,9 +62,6 @@ services:
       - alpine:latest
       - golang:1.13
       dockerfile: ./dockerfiles/Dockerfile
-      args:
-        USER: "vdm"
-        CONFIG_FILE: ./environments/example.toml
     volumes:
      - ./geth.ipc:/geth.ipc
     environment:
