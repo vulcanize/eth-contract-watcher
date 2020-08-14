@@ -2,9 +2,11 @@
     name     = "vulcanize_public"
     hostname = "localhost"
     port     = 5432
+    user     = "vdbm"
+    password = "password"
 
 [client]
-    rpcPath  = ""
+    rpcPath  = "/geth.ipc"
 
 [contract]
     network  = ""
