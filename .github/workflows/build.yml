@@ -8,5 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run docker-compose build
-        run: cd dockerfiles && docker-compose build
+      - name: Run docker build
+        run: make docker-build

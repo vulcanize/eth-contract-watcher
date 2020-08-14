@@ -115,3 +115,8 @@ rollback_to: $(GOOSE) checkmigration checkdbvars
 migrate: $(GOOSE) checkdbvars
 	$(GOOSE) -dir db/migrations postgres "$(CONNECT_STRING)" up
 	pg_dump -O -s $(CONNECT_STRING) > db/schema.sql
+
+## Build docker image
+.PHONY: docker-build
+docker-build:
+	docker build -t vulcanize/eth-contract-watcher -f dockerfiles/Dockerfile .
