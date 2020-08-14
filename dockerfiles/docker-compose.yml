@@ -76,23 +76,16 @@ services:
     restart: always
     depends_on:
     - contact-watcher-db
-    build:
-      context: ./../
-      cache_from:
-      - node:alpine
-      dockerfile: ./dockerfiles/postgraphile/Dockerfile
-    expose:
-    - "5000"
+    image: vulcanizejenkins/postgraphile:v1.0
+    environment:
+      - PG_HOST=contact-watcher-db
+      - PG_PORT=5432
+      - PG_DATABASE=vulcanize_public
+      - PG_USER=vdbm
+      - PG_PASSWORD=password
+      - SCHEMA=public,eth
     ports:
     - "127.0.0.1:5000:5000"
-    command: ["--plugins", "@graphile/pg-pubsub",
-              "--subscriptions",
-              "--simple-subscriptions",
-              "--connection", "postgres://vdbm:password@contact-watcher-db:5432/vulcanize_public",
-              "--port", "5000",
-              "-n", "0.0.0.0",
-              "--schema", "public,eth",
-              "--append-plugins", "postgraphile-plugin-connection-filter"]
 
 volumes:
   vulcanizedb_db_data:
