@@ -3,8 +3,8 @@ FROM golang:1.13-alpine as builder
 RUN apk --update --no-cache add make git g++ linux-headers
 
 # Get and build eth-contract-watcher
-ADD . /go/src/github.com/vulcanize/eth-contract-watcher
 WORKDIR /go/src/github.com/vulcanize/eth-contract-watcher
+ADD . .
 RUN GO111MODULE=on GCO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o eth-contract-watcher .
 
 # Copy migration tool
