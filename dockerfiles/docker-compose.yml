@@ -73,7 +73,7 @@ services:
       - DATABASE_PASSWORD=password
 
   contract-watcher-graphql:
-    restart: always
+    restart: unless-stopped
     depends_on:
     - contact-watcher-db
     image: vulcanizejenkins/postgraphile:v1.0
@@ -83,7 +83,7 @@ services:
       - PG_DATABASE=vulcanize_public
       - PG_USER=vdbm
       - PG_PASSWORD=password
-      - SCHEMA=public,eth
+      - SCHEMA=public
     ports:
     - "127.0.0.1:5000:5000"
 
