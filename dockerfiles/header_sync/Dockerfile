@@ -21,8 +21,8 @@ WORKDIR /go/src/github.com/vulcanize/eth-header-sync
 # app container
 FROM alpine
 
-ARG USER
-ARG CONFIG_FILE
+ARG USER="vdm"
+ARG CONFIG_FILE="./environments/example.toml"
 
 RUN adduser -Du 5000 $USER
 WORKDIR /app

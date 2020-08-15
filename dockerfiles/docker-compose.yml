@@ -39,13 +39,11 @@ services:
       - alpine:latest
       - golang:1.13
       dockerfile: ./dockerfiles/header_sync/Dockerfile
-      args:
-        USER: "vdm"
-        CONFIG_FILE: ./environments/example.toml
     volumes:
       - ./geth.ipc:/geth.ipc
+      - ../environments/example.toml:/app/config.toml
     environment:
-      - STARTING_BLOCK_NUMBER=3327410
+      - STARTING_BLOCK_NUMBER=10564606
       - VDB_COMMAND=sync
       - DATABASE_NAME=vulcanize_public
       - DATABASE_HOSTNAME=contact-watcher-db
@@ -64,6 +62,7 @@ services:
       dockerfile: ./dockerfiles/Dockerfile
     volumes:
      - ./geth.ipc:/geth.ipc
+     - ../environments/example.toml:/app/config.toml
     environment:
       - VDB_COMMAND=watch
       - DATABASE_NAME=vulcanize_public
