@@ -31,14 +31,10 @@ services:
     - "127.0.0.1:8079:5432"
 
   eth-header-sync:
+    restart: unless-stopped
     depends_on:
     - contact-watcher-db
-    build:
-      context: ./../
-      cache_from:
-      - alpine:latest
-      - golang:1.13
-      dockerfile: ./dockerfiles/header_sync/Dockerfile
+    image: vulcanize/eth-header-sync:v1.0.0
     volumes:
       - ./geth.ipc:/geth.ipc
       - ../environments/example.toml:/app/config.toml
@@ -75,14 +71,14 @@ services:
     restart: unless-stopped
     depends_on:
     - contact-watcher-db
-    image: vulcanizejenkins/postgraphile:v1.0
+    image: vulcanize/postgraphile:v1.0
     environment:
       - PG_HOST=contact-watcher-db
       - PG_PORT=5432
       - PG_DATABASE=vulcanize_public
       - PG_USER=vdbm
       - PG_PASSWORD=password
-      - SCHEMA=public
+      - SCHEMA=public,header_0xd850942ef8811f2a866692a623011bde52a462c1
     ports:
     - "127.0.0.1:5000:5000"
 
