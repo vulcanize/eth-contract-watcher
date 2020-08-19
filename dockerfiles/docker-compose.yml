@@ -31,21 +31,15 @@ services:
     - "127.0.0.1:8079:5432"
 
   eth-header-sync:
+    restart: unless-stopped
     depends_on:
     - contact-watcher-db
-    build:
-      context: ./../
-      cache_from:
-      - alpine:latest
-      - golang:1.13
-      dockerfile: ./dockerfiles/header_sync/Dockerfile
-      args:
-        USER: "vdm"
-        CONFIG_FILE: ./environments/example.toml
+    image: vulcanize/eth-header-sync:v1.0.0
     volumes:
       - ./geth.ipc:/geth.ipc
+      - ../environments/example.toml:/app/config.toml
     environment:
-      - STARTING_BLOCK_NUMBER=3327410
+      - STARTING_BLOCK_NUMBER=10564606
       - VDB_COMMAND=sync
       - DATABASE_NAME=vulcanize_public
       - DATABASE_HOSTNAME=contact-watcher-db
@@ -62,11 +56,9 @@ services:
       - alpine:latest
       - golang:1.13
       dockerfile: ./dockerfiles/Dockerfile
-      args:
-        USER: "vdm"
-        CONFIG_FILE: ./environments/example.toml
     volumes:
      - ./geth.ipc:/geth.ipc
+     - ../environments/example.toml:/app/config.toml
     environment:
       - VDB_COMMAND=watch
       - DATABASE_NAME=vulcanize_public
@@ -76,26 +68,19 @@ services:
       - DATABASE_PASSWORD=password
 
   contract-watcher-graphql:
-    restart: always
+    restart: unless-stopped
     depends_on:
     - contact-watcher-db
-    build:
-      context: ./../
-      cache_from:
-      - node:alpine
-      dockerfile: ./dockerfiles/postgraphile/Dockerfile
-    expose:
-    - "5000"
+    image: vulcanize/postgraphile:v1.0
+    environment:
+      - PG_HOST=contact-watcher-db
+      - PG_PORT=5432
+      - PG_DATABASE=vulcanize_public
+      - PG_USER=vdbm
+      - PG_PASSWORD=password
+      - SCHEMA=public,header_0xd850942ef8811f2a866692a623011bde52a462c1
     ports:
     - "127.0.0.1:5000:5000"
-    command: ["--plugins", "@graphile/pg-pubsub",
-              "--subscriptions",
-              "--simple-subscriptions",
-              "--connection", "postgres://vdbm:password@contact-watcher-db:5432/vulcanize_public",
-              "--port", "5000",
-              "-n", "0.0.0.0",
-              "--schema", "public,eth",
-              "--append-plugins", "postgraphile-plugin-connection-filter"]
 
 volumes:
   vulcanizedb_db_data:
