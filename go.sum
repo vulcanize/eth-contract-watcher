@@ -368,6 +368,8 @@ github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljT
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
 github.com/vulcanize/eth-header-sync v0.0.10-alpha h1:GYwpmp29c82voUmPrnRRWCAOO8eSdSkFazsaq4uaEhU=
 github.com/vulcanize/eth-header-sync v0.0.10-alpha/go.mod h1:fAPFg1SipuMJ8gyLBuCzCXFRcT0PVCbXlA0E0MaoYTI=
+github.com/vulcanize/eth-header-sync v0.1.1 h1:XTGbeOfP8c1X4qshIAbLHRzBqTO3zSIsj2J6+8BBbGw=
+github.com/vulcanize/eth-header-sync v0.1.1/go.mod h1:fAPFg1SipuMJ8gyLBuCzCXFRcT0PVCbXlA0E0MaoYTI=
 github.com/vulcanize/vulcanizedb v0.0.9 h1:ozV2t/MG4/WLgP89blPOw4r1KwM5ji9+DW9CXPGFX08=
 github.com/vulcanize/vulcanizedb v0.0.9/go.mod h1:9zfi6VIiCrDVHXe9Z0xmW4CDmNPFwdLuHLcRjjSrdLQ=
 github.com/wsddn/go-ecdh v0.0.0-20161211032359-48726bab9208 h1:1cngl9mPEoITZG8s8cVcUy5CeIBYhEESkOB7m6Gmkrk=

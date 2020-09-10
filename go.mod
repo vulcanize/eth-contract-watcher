@@ -13,7 +13,7 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.0
-	github.com/vulcanize/eth-header-sync v0.0.10-alpha
+	github.com/vulcanize/eth-header-sync v0.1.1
 	golang.org/x/net v0.0.0-20200528225125-3c3fba18258b
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7
