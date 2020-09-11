@@ -27,7 +27,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/vulcanize/eth-header-sync/pkg/client"
 	hc "github.com/vulcanize/eth-header-sync/pkg/config"
 	"github.com/vulcanize/eth-header-sync/pkg/core"
 	"github.com/vulcanize/eth-header-sync/pkg/node"
@@ -151,6 +150,5 @@ func getClientAndNode() (*ethclient.Client, core.Node) {
 	if err != nil {
 		logWithCommand.Fatal(err)
 	}
-	rpcClient := client.NewRPCClient(rawRPCClient, ipc)
-	return ethclient.NewClient(rawRPCClient), node.MakeNode(rpcClient)
+	return ethclient.NewClient(rawRPCClient), node.MakeNode()
 }

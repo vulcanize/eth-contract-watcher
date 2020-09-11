@@ -25,7 +25,7 @@ import (
 	"github.com/vulcanize/eth-contract-watcher/pkg/core"
 )
 
-var TestABIsPath = os.Getenv("GOPATH") + "/src/github.com/vulcanize/vulcanizedb/pkg/eth/testing/"
+var TestABIsPath = os.Getenv("GOPATH") + "/src/github.com/vulcanize/eth-contract-watcher/pkg/testing/"
 
 func SampleContract() core.Contract {
 	return core.Contract{
