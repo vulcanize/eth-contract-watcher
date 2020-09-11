@@ -160,6 +160,13 @@ The config file linked to in the `--config` cli flag should have the below forma
 		]
         startingBlock = 4448566
         piping = true
+
+  [ethereum]
+    nodeID = "arch1"
+    clientName = "Geth"
+    genesisBlock = "0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3"
+    networkID = "1"
+    chainID = "1"
 ````
 
 - `database` fields hold the paramaters for connection to the Postgres database
@@ -188,6 +195,7 @@ The config file linked to in the `--config` cli flag should have the below forma
         - If methodArgs are provided then only those values will be used to poll methods
     - `startingBlock` is the block we want to begin watching the contract, usually the deployment block of that contract
     - `piping` is a boolean flag which indicates whether or not we want to pipe return method values forward as arguments to subsequent method calls
+- `ethereum` fields hold information for the Ethereum node, network, and chain
 
 At the very minimum, for each contract address an ABI and a starting block number need to be provided (or just the starting block if the ABI can be reliably fetched from Etherscan).
 With just this information we will be able to watch all events at the contract, but with no additional filters and no method polling.

@@ -99,6 +99,13 @@ CREATE TABLE public.headers (
 
 
 --
+-- Name: COLUMN headers.node_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.headers.node_id IS '@name HeaderNodeID';
+
+
+--
 -- Name: headers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -127,8 +134,23 @@ CREATE TABLE public.nodes (
     client_name character varying,
     genesis_block character varying(66),
     network_id character varying,
-    node_id character varying(128)
+    node_id character varying(128),
+    chain_id integer
 );
+
+
+--
+-- Name: TABLE nodes; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.nodes IS '@name NodeInfo';
+
+
+--
+-- Name: COLUMN nodes.node_id; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.nodes.node_id IS '@name ChainNodeID';
 
 
 --
@@ -224,7 +246,7 @@ ALTER TABLE ONLY public.headers
 --
 
 ALTER TABLE ONLY public.nodes
-    ADD CONSTRAINT node_uc UNIQUE (genesis_block, network_id, node_id);
+    ADD CONSTRAINT node_uc UNIQUE (genesis_block, network_id, node_id, chain_id);
 
 
 --

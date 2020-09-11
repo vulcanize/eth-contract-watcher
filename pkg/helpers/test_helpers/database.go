@@ -111,7 +111,7 @@ func SetupHeaderFetcher() core.Fetcher {
 	Expect(err).NotTo(HaveOccurred())
 	ethClient := ethclient.NewClient(rawRPCClient)
 	rpcClient := client.NewRPCClient(rawRPCClient, rpcPath)
-	n := node.MakeNode(rpcClient)
+	n := node.MakeNode()
 	Expect(err).NotTo(HaveOccurred())
 
 	return fetcher.NewFetcher(ethClient, rpcClient, n)
@@ -123,8 +123,7 @@ func SetupDBandClient() (*postgres.DB, core.EthClient) {
 	rawRPCClient, err := rpc.Dial(rpcPath)
 	Expect(err).NotTo(HaveOccurred())
 	ethClient := ethclient.NewClient(rawRPCClient)
-	rpcClient := client.NewRPCClient(rawRPCClient, rpcPath)
-	n := node.MakeNode(rpcClient)
+	n := node.MakeNode()
 
 	db, err := postgres.NewDB(config.Database{
 		Hostname: "localhost",
