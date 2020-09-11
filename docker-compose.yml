@@ -95,7 +95,6 @@ services:
       - golang:1.13
       dockerfile: Dockerfile
     volumes:
-     - ./geth.ipc:/geth.ipc
      - ./environments/example.toml:/app/config.toml
     environment:
       - VDB_COMMAND=watch
@@ -109,7 +108,7 @@ services:
     restart: unless-stopped
     depends_on:
     - contact-watcher-db
-    image: vulcanize/postgraphile:v1.0
+    image: vulcanize/postgraphile:v1.0.1
     environment:
       - PG_HOST=contact-watcher-db
       - PG_PORT=5432
