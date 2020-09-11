@@ -1,0 +1,125 @@
+version: '3.2'
+
+services:
+  dapptools:
+    restart: unless-stopped
+    image: vulcanize/dapptools:v0.29.0-statediff-0.0.2
+    ports:
+      - "127.0.0.1:8545:8545"
+      - "127.0.0.1:8546:8546"
+
+  eth-indexer:
+    restart: unless-stopped
+    depends_on:
+      - indexer-db
+      - dapptools
+    image: vulcanize/ipld-eth-indexer:v0.3.0-alpha
+    environment:
+      DATABASE_NAME: vulcanize_public
+      DATABASE_HOSTNAME: indexer-db
+      DATABASE_PORT: 5432
+      DATABASE_USER: vdbm
+      DATABASE_PASSWORD: password
+      ETH_WS_PATH: "dapptools:8546"
+      ETH_HTTP_PATH: "dapptools:8545"
+      ETH_CHAIN_ID: 4
+      ETH_NETWORK_ID: 4
+      VDB_COMMAND: sync
+
+  eth-server:
+    depends_on:
+      - indexer-db
+      - eth-indexer
+    image: vulcanize/ipld-eth-server:v0.0.13
+    environment:
+      VDB_COMMAND: serve
+      DATABASE_NAME: vulcanize_public
+      DATABASE_HOSTNAME: indexer-db
+      DATABASE_PORT: 5432
+      DATABASE_USER: vdbm
+      DATABASE_PASSWORD: password
+      SERVER_WS_PATH: "0.0.0.0:8080"
+      SERVER_HTTP_PATH: "0.0.0.0:8081"
+      LOGRUS_LEVEL: debug
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8081:8081"
+
+  indexer-db:
+    restart: unless-stopped
+    image: postgres:10.12-alpine
+    environment:
+      - POSTGRES_USER=vdbm
+      - POSTGRES_DB=vulcanize_public
+      - POSTGRES_PASSWORD=password
+    volumes:
+    - indexer_db_data:/var/lib/postgresql/data
+    ports:
+    - "127.0.0.1:8069:5432"
+
+  contact-watcher-db:
+    restart: unless-stopped
+    image: postgres:10.12-alpine
+    environment:
+      - POSTGRES_USER=vdbm
+      - POSTGRES_DB=vulcanize_public
+      - POSTGRES_PASSWORD=password
+    volumes:
+    - contact_watcher_db_data:/var/lib/postgresql/data
+    ports:
+    - "127.0.0.1:8068:5432"
+
+  eth-header-sync:
+    restart: unless-stopped
+    depends_on:
+      - contact-watcher-db
+    image: vulcanize/eth-header-sync:v0.1.1
+    volumes:
+      - ./environments/header_sync.toml:/app/config.toml
+    environment:
+      - STARTING_BLOCK_NUMBER=1
+      - VDB_COMMAND=sync
+      - DATABASE_NAME=vulcanize_public
+      - DATABASE_HOSTNAME=contact-watcher-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=vdbm
+      - DATABASE_PASSWORD=password
+
+  eth-contract-watcher:
+    depends_on:
+    - contact-watcher-db
+    build:
+      context: ""
+      cache_from:
+      - alpine:latest
+      - golang:1.13
+      dockerfile: Dockerfile
+    volumes:
+     - ./geth.ipc:/geth.ipc
+     - ./environments/example.toml:/app/config.toml
+    environment:
+      - VDB_COMMAND=watch
+      - DATABASE_NAME=vulcanize_public
+      - DATABASE_HOSTNAME=contact-watcher-db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=vdbm
+      - DATABASE_PASSWORD=password
+
+  contract-watcher-graphql:
+    restart: unless-stopped
+    depends_on:
+    - contact-watcher-db
+    image: vulcanize/postgraphile:v1.0
+    environment:
+      - PG_HOST=contact-watcher-db
+      - PG_PORT=5432
+      - PG_DATABASE=vulcanize_public
+      - PG_USER=vdbm
+      - PG_PASSWORD=password
+      - SCHEMA=public,header_0xd850942ef8811f2a866692a623011bde52a462c1
+    ports:
+    - "127.0.0.1:5000:5000"
+
+volumes:
+  contact_watcher_db_data:
+  indexer_db_data:
