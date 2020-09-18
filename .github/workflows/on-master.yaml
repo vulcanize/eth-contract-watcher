@@ -1,0 +1,25 @@
+name: Docker Compose Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Run docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=sha::$(echo ${GITHUB_SHA:0:7})
+      - name: Run docker build
+        run: make docker-build
+      - name: Tag docker image
+        run: docker tag vulcanize/eth-contract-watcher docker.pkg.github.com/vulcanize/eth-contract-watcher/eth-contract-watcher:${{steps.vars.outputs.sha}}
+      - name: Docker Login
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login https://docker.pkg.github.com -u vulcanize --password-stdin
+      - name: Docker Push
+        run: docker push docker.pkg.github.com/vulcanize/eth-contract-watcher/eth-contract-watcher:${{steps.vars.outputs.sha}}
+
