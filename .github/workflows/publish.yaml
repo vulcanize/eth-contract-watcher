@@ -1,0 +1,25 @@
+name: Publish Docker image
+on:
+  release:
+    types: [published]
+jobs:
+  push_to_registries:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the version
+        id: vars
+        run: |
+          echo ::set-output name=sha::$(echo ${GITHUB_SHA:0:7})
+          echo ::set-output name=tag::$(echo ${GITHUB_REF#refs/tags/})
+      - name: Docker Login to Github Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login https://docker.pkg.github.com -u vulcanize --password-stdin
+      - name: Docker Pull
+        run: docker pull docker.pkg.github.com/vulcanize/eth-contract-watcher/eth-contract-watcher:${{steps.vars.outputs.sha}}
+      - name: Docker Login to Docker Registry
+        run: echo ${{ secrets.VULCANIZEJENKINS_PAT }} | docker login -u vulcanizejenkins --password-stdin
+      - name: Tag docker image
+        run: docker tag docker.pkg.github.com/vulcanize/eth-contract-watcher/eth-contract-watcher:${{steps.vars.outputs.sha}} vulcanize/eth-contract-watcher:${{steps.vars.outputs.tag}}
+      - name: Docker Push to Docker Hub
+        run: docker push vulcanize/eth-contract-watcher:${{steps.vars.outputs.tag}}
+

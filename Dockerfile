@@ -26,7 +26,7 @@ USER $USER
 
 # chown first so dir is writable
 COPY --chown=$USER:$USER --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/$CONFIG_FILE config.toml
-COPY --chown=$USER:$USER --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/dockerfiles/startup_script.sh .
+COPY --chown=$USER:$USER --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/startup_script.sh .
 
 # keep binaries immutable
 COPY --from=builder /go/src/github.com/vulcanize/eth-contract-watcher/eth-contract-watcher eth-contract-watcher

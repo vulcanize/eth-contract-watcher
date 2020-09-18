@@ -1,10 +1,10 @@
-name: Docker Compose Build
+name: Docker Build
 
 on: [pull_request]
 
 jobs:
   build:
-    name: Run docker-compose build
+    name: Run docker build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

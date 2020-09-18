@@ -2,7 +2,7 @@
 .vscode
 test_data_dir/
 contracts/*
-environments/*.toml
+#environments/*.toml
 Vagrantfile
 vagrant*.sh
 .vagrant

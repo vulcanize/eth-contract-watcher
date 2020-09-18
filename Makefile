@@ -119,4 +119,4 @@ migrate: $(GOOSE) checkdbvars
 ## Build docker image
 .PHONY: docker-build
 docker-build:
-	docker build -t vulcanize/eth-contract-watcher -f dockerfiles/Dockerfile .
+	docker build -t vulcanize/eth-contract-watcher -f Dockerfile .

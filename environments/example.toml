@@ -6,7 +6,7 @@
     password = "password"
 
 [client]
-    rpcPath  = "/geth.ipc"
+    rpcPath  = "http://eth-server:8081"
 
 [contract]
     network  = ""
