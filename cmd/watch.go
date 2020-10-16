@@ -88,9 +88,6 @@ func watch() {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	fmt.Printf("Timeout is %d", timeout)
-	return
-
 	client, node := getClientAndNode()
 
 	db, err := postgres.NewDB(databaseConfig, node)
