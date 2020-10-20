@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	gethTypes "github.com/ethereum/go-ethereum/core/types"
@@ -79,10 +80,10 @@ type Transformer struct {
 // 4. Execute
 
 // NewTransformer takes in a contract config, fetcher, and database, and returns a new Transformer
-func NewTransformer(con config.ContractConfig, client core.EthClient, db *postgres.DB) *Transformer {
+func NewTransformer(con config.ContractConfig, client core.EthClient, db *postgres.DB, timeout time.Duration) *Transformer {
 	return &Transformer{
-		Poller:           poller.NewPoller(client, db, types.HeaderSync),
-		Fetcher:          fetcher.NewFetcher(client),
+		Poller:           poller.NewPoller(client, db, types.HeaderSync, timeout),
+		Fetcher:          fetcher.NewFetcher(client, timeout),
 		Parser:           parser.NewParser(con.Network),
 		HeaderRepository: repository.NewHeaderRepository(db),
 		Retriever:        retriever.NewBlockRetriever(db),

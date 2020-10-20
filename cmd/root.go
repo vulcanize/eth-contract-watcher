@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -38,6 +39,7 @@ var (
 	ipc            string
 	subCommand     string
 	logWithCommand log.Entry
+	timeout        time.Duration
 )
 
 var rootCmd = &cobra.Command{
@@ -71,6 +73,7 @@ func initFuncs(cmd *cobra.Command, args []string) {
 	if err := logLevel(); err != nil {
 		log.Fatal("Could not set log level: ", err)
 	}
+	initTimeout()
 }
 
 func setViperConfigs() {
@@ -98,6 +101,15 @@ func logLevel() error {
 	return nil
 }
 
+func initTimeout() {
+	t := viper.GetInt("timeout")
+	if t < 15 {
+		t = 15
+	}
+
+	timeout = time.Second * time.Duration(t)
+}
+
 func init() {
 	cobra.OnInitialize(initConfig)
 	// When searching for env variables, replace dots in config keys with underscores
@@ -116,7 +128,8 @@ func init() {
 	rootCmd.PersistentFlags().String("filesystem-storageDiffsPath", "", "location of storage diffs csv file")
 	rootCmd.PersistentFlags().String("storageDiffs-source", "csv", "where to get the state diffs: csv or geth")
 	rootCmd.PersistentFlags().String("exporter-name", "exporter", "name of exporter plugin")
-	rootCmd.PersistentFlags().String("log-level", log.InfoLevel.String(), "Log level (trace, debug, info, warn, error, fatal, panic")
+	rootCmd.PersistentFlags().String("log-level", log.InfoLevel.String(), "Log level (trace, debug, info, warn, error, fatal, panic)")
+	rootCmd.PersistentFlags().Int("timeout", 15, "timeout used for Eth JSON-RPC requests (in seconds)")
 
 	viper.BindPFlag("logfile", rootCmd.PersistentFlags().Lookup("logfile"))
 	viper.BindPFlag("database.name", rootCmd.PersistentFlags().Lookup("database-name"))
@@ -130,6 +143,7 @@ func init() {
 	viper.BindPFlag("storageDiffs.source", rootCmd.PersistentFlags().Lookup("storageDiffs-source"))
 	viper.BindPFlag("exporter.fileName", rootCmd.PersistentFlags().Lookup("exporter-name"))
 	viper.BindPFlag("log.level", rootCmd.PersistentFlags().Lookup("log-level"))
+	viper.BindPFlag("timeout", rootCmd.PersistentFlags().Lookup("timeout"))
 }
 
 func initConfig() {

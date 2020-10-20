@@ -18,6 +18,7 @@ package fetcher
 
 import (
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -32,16 +33,20 @@ import (
 
 type Fetcher struct {
 	ethClient core.EthClient
+	timeout   time.Duration
 }
 
-func NewFetcher(ethClient core.EthClient) *Fetcher {
+func NewFetcher(ethClient core.EthClient, timeout time.Duration) *Fetcher {
 	return &Fetcher{
 		ethClient: ethClient,
+		timeout:   timeout,
 	}
 }
 
 func (f *Fetcher) FetchEthLogsWithCustomQuery(query ethereum.FilterQuery) ([]types.Log, error) {
-	gethLogs, err := f.ethClient.FilterLogs(context.Background(), query)
+	ctx, cancel := context.WithTimeout(context.Background(), f.timeout)
+	defer cancel()
+	gethLogs, err := f.ethClient.FilterLogs(ctx, query)
 	logrus.Debug("GetEthLogsWithCustomQuery called")
 	if err != nil {
 		return []types.Log{}, err
@@ -77,5 +82,7 @@ func (f *Fetcher) FetchContractData(abiJSON string, address string, method strin
 func (f *Fetcher) callContract(contractHash string, input []byte, blockNumber *big.Int) ([]byte, error) {
 	to := common.HexToAddress(contractHash)
 	msg := ethereum.CallMsg{To: &to, Data: input}
-	return f.ethClient.CallContract(context.Background(), msg, blockNumber)
+	ctx, cancel := context.WithTimeout(context.Background(), f.timeout)
+	defer cancel()
+	return f.ethClient.CallContract(ctx, msg, blockNumber)
 }

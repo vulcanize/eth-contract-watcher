@@ -97,7 +97,7 @@ func watch() {
 
 	con := config.ContractConfig{}
 	con.PrepConfig()
-	transformer := st.NewTransformer(con, client, db)
+	transformer := st.NewTransformer(con, client, db, timeout)
 
 	if err := transformer.Init(); err != nil {
 		logWithCommand.Fatal(fmt.Sprintf("Failed to initialize transformer, err: %v ", err))

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -50,10 +51,10 @@ type poller struct {
 }
 
 // NewPoller returns a new Poller
-func NewPoller(client hc.EthClient, db *postgres.DB, mode types.Mode) Poller {
+func NewPoller(client hc.EthClient, db *postgres.DB, mode types.Mode, timeout time.Duration) Poller {
 	return &poller{
 		MethodRepository: repository.NewMethodRepository(db, mode),
-		fetcher:          fetcher.NewFetcher(client),
+		fetcher:          fetcher.NewFetcher(client, timeout),
 	}
 }
 
